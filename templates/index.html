@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Multi-Language Chatbot</title>
+</head>
+
+<body>
+
+    <h1>Multi-Language Chatbot</h1>
+
+    <div id="chat-box">
+        <p><strong>Bot:</strong> Hello! How can I help you?</p>
+    </div>
+
+    <input
+        type="text"
+        id="message"
+        placeholder="Type your message..."
+    >
+
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        async function sendMessage() {
+
+            const messageInput = document.getElementById("message");
+            const message = messageInput.value.trim();
+
+            if (message === "") {
+                return;
+            }
+
+            const chatBox = document.getElementById("chat-box");
+
+            chatBox.innerHTML +=
+                `<p><strong>You:</strong> ${message}</p>`;
+
+            const response = await fetch("/chat", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    message: message
+                })
+            });
+
+            const data = await response.json();
+
+            chatBox.innerHTML +=
+                `<p><strong>Bot:</strong> ${data.response}</p>`;
+
+            messageInput.value = "";
+        }
+    </script>
+
+</body>
+</html>

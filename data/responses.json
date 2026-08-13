@@ -1,0 +1,25 @@
+{
+    "greeting": [
+        "Hello! How can I help you?",
+        "Hi! What can I do for you?",
+        "Hello! Nice to meet you."
+    ],
+    "thanks": [
+        "You're welcome!",
+        "Happy to help!",
+        "No problem!"
+    ],
+    "goodbye": [
+        "Goodbye! Have a nice day!",
+        "See you again!",
+        "Thank you for chatting with me."
+    ],
+    "help": [
+        "I can answer basic questions and help you with common queries.",
+        "Sure! Please tell me what you need help with."
+    ],
+    "default": [
+        "Sorry, I didn't understand your question.",
+        "Could you please rephrase your question?"
+    ]
+}
