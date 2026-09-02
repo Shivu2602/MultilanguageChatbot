@@ -1,60 +1,930 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Multi-Language Chatbot</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f4f7fb;
+            color: #1f2937;
+        }
+
+        .app-container {
+            width: 95%;
+            max-width: 1000px;
+            margin: 30px auto;
+        }
+
+        /* Header */
+
+        .header {
+            background: #ffffff;
+            border-radius: 14px 14px 0 0;
+            padding: 22px 25px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 28px;
+        }
+
+        .header p {
+            margin: 7px 0 0;
+            color: #6b7280;
+        }
+
+        /* Main Chat */
+
+        .chat-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 0 0 14px 14px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Language */
+
+        .language-area {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .language-area label {
+            font-weight: bold;
+        }
+
+        #language {
+            padding: 9px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 15px;
+            background: white;
+            cursor: pointer;
+        }
+
+        /* Chat Box */
+
+        #chat-box {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            border: 1px solid #dbe2ea;
+            border-radius: 12px;
+            background: #f8fafc;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 14px;
+            line-height: 1.6;
+        }
+
+        .message-label {
+            font-weight: bold;
+        }
+
+        /* Input */
+
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+
+        #message {
+            flex: 1;
+            min-height: 48px;
+            padding: 13px 15px;
+            font-size: 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        #message:focus {
+            border-color: #2563eb;
+        }
+
+        #send-button {
+            min-width: 90px;
+            border: none;
+            border-radius: 8px;
+            padding: 0 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: #2563eb;
+            color: white;
+        }
+
+        #send-button:hover {
+            background: #1d4ed8;
+        }
+
+        /* Kannada Keyboard */
+
+        #kannada-keyboard {
+            display: none;
+            margin-top: 18px;
+            padding: 18px;
+            background: #ffffff;
+            border: 1px solid #dbe2ea;
+            border-radius: 12px;
+        }
+
+        #kannada-keyboard h3 {
+            text-align: center;
+            margin: 0 0 18px;
+            font-size: 20px;
+        }
+
+        .keyboard-section {
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 9px;
+            color: #374151;
+        }
+
+        .key-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .key {
+            min-width: 46px;
+            min-height: 43px;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            background: #f8fafc;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .key:hover {
+            background: #e2e8f0;
+        }
+
+        .common-compounds {
+            max-height: 180px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .keyboard-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .control-button {
+            padding: 10px 17px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: #f8fafc;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .control-button:hover {
+            background: #e2e8f0;
+        }
+
+        /* Status */
+
+        #status {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        /* Mobile */
+
+        @media (max-width: 600px) {
+
+            .app-container {
+                width: 100%;
+                margin: 0;
+            }
+
+            .header,
+            .chat-container {
+                border-radius: 0;
+            }
+
+            .input-area {
+                flex-direction: column;
+            }
+
+            #send-button {
+                min-height: 45px;
+            }
+
+            .language-area {
+                justify-content: flex-start;
+            }
+
+            #chat-box {
+                height: 350px;
+            }
+
+            .key {
+                min-width: 40px;
+            }
+        }
+    </style>
 </head>
+
 
 <body>
 
-    <h1>Multi-Language Chatbot</h1>
+<div class="app-container">
 
-    <div id="chat-box">
-        <p><strong>Bot:</strong> Hello! How can I help you?</p>
+    <!-- HEADER -->
+
+    <div class="header">
+
+        <h1>Multi-Language Chatbot</h1>
+
+        <p>
+            Intelligent conversational assistant supporting English and Kannada
+        </p>
+
     </div>
 
-    <input
-        type="text"
-        id="message"
-        placeholder="Type your message..."
-    >
 
-    <button onclick="sendMessage()">Send</button>
+    <!-- CHAT -->
 
-    <script>
-        async function sendMessage() {
+    <div class="chat-container">
 
-            const messageInput = document.getElementById("message");
-            const message = messageInput.value.trim();
 
-            if (message === "") {
-                return;
+        <!-- LANGUAGE -->
+
+        <div class="language-area">
+
+            <label for="language">
+                Language:
+            </label>
+
+            <select id="language" onchange="changeLanguage()">
+
+                <option value="en">
+                    English
+                </option>
+
+                <option value="kn">
+                    ಕನ್ನಡ
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- CHAT BOX -->
+
+        <div id="chat-box">
+
+            <div class="message">
+                <span class="message-label">Bot:</span>
+                Hello! How can I help you?
+            </div>
+
+        </div>
+
+
+        <!-- INPUT -->
+
+        <div class="input-area">
+
+            <input
+                type="text"
+                id="message"
+                placeholder="Type your message..."
+                autocomplete="off"
+            >
+
+            <button
+                id="send-button"
+                onclick="sendMessage()"
+            >
+                Send
+            </button>
+
+        </div>
+
+
+        <div id="status">
+            Press Enter to send your message.
+        </div>
+
+
+        <!-- KANNADA KEYBOARD -->
+
+        <div id="kannada-keyboard">
+
+            <h3>ಕನ್ನಡ Keyboard</h3>
+
+
+            <!-- VOWELS -->
+
+            <div class="keyboard-section">
+
+                <div class="section-title">
+                    ಸ್ವರಗಳು
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ಅ')">ಅ</button>
+                    <button class="key" onclick="addKannada('ಆ')">ಆ</button>
+                    <button class="key" onclick="addKannada('ಇ')">ಇ</button>
+                    <button class="key" onclick="addKannada('ಈ')">ಈ</button>
+                    <button class="key" onclick="addKannada('ಉ')">ಉ</button>
+                    <button class="key" onclick="addKannada('ಊ')">ಊ</button>
+                    <button class="key" onclick="addKannada('ಋ')">ಋ</button>
+                    <button class="key" onclick="addKannada('ಎ')">ಎ</button>
+                    <button class="key" onclick="addKannada('ಏ')">ಏ</button>
+                    <button class="key" onclick="addKannada('ಐ')">ಐ</button>
+                    <button class="key" onclick="addKannada('ಒ')">ಒ</button>
+                    <button class="key" onclick="addKannada('ಓ')">ಓ</button>
+                    <button class="key" onclick="addKannada('ಔ')">ಔ</button>
+
+                </div>
+
+            </div>
+
+
+            <!-- CONSONANTS -->
+
+            <div class="keyboard-section">
+
+                <div class="section-title">
+                    ವ್ಯಂಜನಗಳು
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ಕ')">ಕ</button>
+                    <button class="key" onclick="addKannada('ಖ')">ಖ</button>
+                    <button class="key" onclick="addKannada('ಗ')">ಗ</button>
+                    <button class="key" onclick="addKannada('ಘ')">ಘ</button>
+                    <button class="key" onclick="addKannada('ಙ')">ಙ</button>
+
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ಚ')">ಚ</button>
+                    <button class="key" onclick="addKannada('ಛ')">ಛ</button>
+                    <button class="key" onclick="addKannada('ಜ')">ಜ</button>
+                    <button class="key" onclick="addKannada('ಝ')">ಝ</button>
+                    <button class="key" onclick="addKannada('ಞ')">ಞ</button>
+
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ಟ')">ಟ</button>
+                    <button class="key" onclick="addKannada('ಠ')">ಠ</button>
+                    <button class="key" onclick="addKannada('ಡ')">ಡ</button>
+                    <button class="key" onclick="addKannada('ಢ')">ಢ</button>
+                    <button class="key" onclick="addKannada('ಣ')">ಣ</button>
+
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ತ')">ತ</button>
+                    <button class="key" onclick="addKannada('ಥ')">ಥ</button>
+                    <button class="key" onclick="addKannada('ದ')">ದ</button>
+                    <button class="key" onclick="addKannada('ಧ')">ಧ</button>
+                    <button class="key" onclick="addKannada('ನ')">ನ</button>
+
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ಪ')">ಪ</button>
+                    <button class="key" onclick="addKannada('ಫ')">ಫ</button>
+                    <button class="key" onclick="addKannada('ಬ')">ಬ</button>
+                    <button class="key" onclick="addKannada('ಭ')">ಭ</button>
+                    <button class="key" onclick="addKannada('ಮ')">ಮ</button>
+
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ಯ')">ಯ</button>
+                    <button class="key" onclick="addKannada('ರ')">ರ</button>
+                    <button class="key" onclick="addKannada('ಲ')">ಲ</button>
+                    <button class="key" onclick="addKannada('ವ')">ವ</button>
+                    <button class="key" onclick="addKannada('ಶ')">ಶ</button>
+                    <button class="key" onclick="addKannada('ಷ')">ಷ</button>
+                    <button class="key" onclick="addKannada('ಸ')">ಸ</button>
+                    <button class="key" onclick="addKannada('ಹ')">ಹ</button>
+
+                </div>
+
+            </div>
+
+
+            <!-- MAATRAS -->
+
+            <div class="keyboard-section">
+
+                <div class="section-title">
+                    ಮಾತ್ರೆಗಳು ಮತ್ತು ಚಿಹ್ನೆಗಳು
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ಾ')">ಾ</button>
+                    <button class="key" onclick="addKannada('ಿ')">ಿ</button>
+                    <button class="key" onclick="addKannada('ೀ')">ೀ</button>
+                    <button class="key" onclick="addKannada('ು')">ು</button>
+                    <button class="key" onclick="addKannada('ೂ')">ೂ</button>
+                    <button class="key" onclick="addKannada('ೃ')">ೃ</button>
+                    <button class="key" onclick="addKannada('ೆ')">ೆ</button>
+                    <button class="key" onclick="addKannada('ೇ')">ೇ</button>
+                    <button class="key" onclick="addKannada('ೈ')">ೈ</button>
+                    <button class="key" onclick="addKannada('ೊ')">ೊ</button>
+                    <button class="key" onclick="addKannada('ೋ')">ೋ</button>
+                    <button class="key" onclick="addKannada('ೌ')">ೌ</button>
+
+                </div>
+
+                <div class="key-row">
+
+                    <button class="key" onclick="addKannada('ಂ')">ಂ</button>
+                    <button class="key" onclick="addKannada('ಃ')">ಃ</button>
+
+                    <button
+                        class="key"
+                        onclick="addKannada('್')"
+                        title="Use this to create compound consonants"
+                    >
+                        ್
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- COMMON OTTaksharagalu -->
+
+            <div class="keyboard-section">
+
+                <div class="section-title">
+                    ಒತ್ತಕ್ಷರಗಳು
+                </div>
+
+                <div class="common-compounds">
+
+                    <div class="key-row">
+
+                        <button class="key" onclick="addKannada('ಕ್ಕ')">ಕ್ಕ</button>
+                        <button class="key" onclick="addKannada('ಕ್ಕಿ')">ಕ್ಕಿ</button>
+                        <button class="key" onclick="addKannada('ಕ್ಕೆ')">ಕ್ಕೆ</button>
+                        <button class="key" onclick="addKannada('ಕ್ಕು')">ಕ್ಕು</button>
+                        <button class="key" onclick="addKannada('ಗ್ಗ')">ಗ್ಗ</button>
+                        <button class="key" onclick="addKannada('ಚ್ಚ')">ಚ್ಚ</button>
+                        <button class="key" onclick="addKannada('ಜ್ಜ')">ಜ್ಜ</button>
+
+                    </div>
+
+                    <div class="key-row">
+
+                        <button class="key" onclick="addKannada('ಟ್ಟ')">ಟ್ಟ</button>
+                        <button class="key" onclick="addKannada('ಡ್ಡ')">ಡ್ಡ</button>
+                        <button class="key" onclick="addKannada('ಣ್ಣ')">ಣ್ಣ</button>
+                        <button class="key" onclick="addKannada('ತ್ತ')">ತ್ತ</button>
+                        <button class="key" onclick="addKannada('ದ್ದ')">ದ್ದ</button>
+                        <button class="key" onclick="addKannada('ನ್ನ')">ನ್ನ</button>
+
+                    </div>
+
+                    <div class="key-row">
+
+                        <button class="key" onclick="addKannada('ಪ್ಪ')">ಪ್ಪ</button>
+                        <button class="key" onclick="addKannada('ಬ್ಬ')">ಬ್ಬ</button>
+                        <button class="key" onclick="addKannada('ಮ್ಮ')">ಮ್ಮ</button>
+                        <button class="key" onclick="addKannada('ಲ್ಲ')">ಲ್ಲ</button>
+                        <button class="key" onclick="addKannada('ಸ್ಸ')">ಸ್ಸ</button>
+
+                    </div>
+
+                    <div class="key-row">
+
+                        <button class="key" onclick="addKannada('ಕ್ಷ')">ಕ್ಷ</button>
+                        <button class="key" onclick="addKannada('ಜ್ಞ')">ಜ್ಞ</button>
+                        <button class="key" onclick="addKannada('ತ್ರ')">ತ್ರ</button>
+                        <button class="key" onclick="addKannada('ದ್ರ')">ದ್ರ</button>
+                        <button class="key" onclick="addKannada('ಪ್ರ')">ಪ್ರ</button>
+                        <button class="key" onclick="addKannada('ಕ್ರ')">ಕ್ರ</button>
+
+                    </div>
+
+                    <div class="key-row">
+
+                        <button class="key" onclick="addKannada('ಗ್ರ')">ಗ್ರ</button>
+                        <button class="key" onclick="addKannada('ಬ್ರ')">ಬ್ರ</button>
+                        <button class="key" onclick="addKannada('ಶ್ರ')">ಶ್ರ</button>
+                        <button class="key" onclick="addKannada('ಸ್ವ')">ಸ್ವ</button>
+                        <button class="key" onclick="addKannada('ಹ್ರ')">ಹ್ರ</button>
+
+                    </div>
+
+                    <div class="key-row">
+
+                        <button class="key" onclick="addKannada('ಕ್ಲ')">ಕ್ಲ</button>
+                        <button class="key" onclick="addKannada('ಗ್ಲ')">ಗ್ಲ</button>
+                        <button class="key" onclick="addKannada('ಪ್ಲ')">ಪ್ಲ</button>
+                        <button class="key" onclick="addKannada('ಬ್ಲ')">ಬ್ಲ</button>
+                        <button class="key" onclick="addKannada('ವ್ರ')">ವ್ರ</button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        
+
+            <!-- CONTROLS -->
+
+            <div class="keyboard-controls">
+
+                <button
+                    class="control-button"
+                    onclick="addKannada(' ')"
+                >
+                    Space
+                </button>
+
+                <button
+                    class="control-button"
+                    onclick="backspace()"
+                >
+                    ⌫ Backspace
+                </button>
+
+                <button
+                    class="control-button"
+                    onclick="clearMessage()"
+                >
+                    Clear
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /*
+     * Change Language
+     */
+
+    function changeLanguage() {
+
+        const language =
+            document.getElementById("language").value;
+
+        const keyboard =
+            document.getElementById("kannada-keyboard");
+
+        const message =
+            document.getElementById("message");
+
+        const status =
+            document.getElementById("status");
+
+
+        if (language === "kn") {
+
+            keyboard.style.display = "block";
+
+            message.placeholder =
+                "ಕನ್ನಡದಲ್ಲಿ ಸಂದೇಶವನ್ನು ನಮೂದಿಸಿ...";
+
+            status.textContent =
+                "ಕನ್ನಡ keyboard ಬಳಸಿ ಅಥವಾ Enter ಒತ್ತಿ ಸಂದೇಶ ಕಳುಹಿಸಿ.";
+
+        } else {
+
+            keyboard.style.display = "none";
+
+            message.placeholder =
+                "Type your message...";
+
+            status.textContent =
+                "Press Enter to send your message.";
+
+        }
+
+        message.focus();
+    }
+
+
+    /*
+     * Add Kannada Character
+     */
+
+    function addKannada(character) {
+
+        const message =
+            document.getElementById("message");
+
+        message.value += character;
+
+        message.focus();
+    }
+
+
+    /*
+     * Backspace
+     */
+
+    function backspace() {
+
+        const message =
+            document.getElementById("message");
+
+        message.value =
+            message.value.slice(0, -1);
+
+        message.focus();
+    }
+
+
+    /*
+     * Clear Input
+     */
+
+    function clearMessage() {
+
+        const message =
+            document.getElementById("message");
+
+        message.value = "";
+
+        message.focus();
+    }
+
+
+    /*
+     * Send Message
+     */
+
+    async function sendMessage() {
+
+        const messageInput =
+            document.getElementById("message");
+
+        const languageSelect =
+            document.getElementById("language");
+
+        const chatBox =
+            document.getElementById("chat-box");
+
+
+        const message =
+            messageInput.value.trim();
+
+        const language =
+            languageSelect.value;
+
+
+        if (message === "") {
+
+            messageInput.focus();
+
+            return;
+        }
+
+
+        /*
+         * Display User Message
+         */
+
+        const userMessage =
+            document.createElement("div");
+
+        userMessage.className =
+            "message";
+
+        const userLabel =
+            document.createElement("span");
+
+        userLabel.className =
+            "message-label";
+
+        userLabel.textContent =
+            "You: ";
+
+        userMessage.appendChild(userLabel);
+
+        userMessage.appendChild(
+            document.createTextNode(message)
+        );
+
+        chatBox.appendChild(userMessage);
+
+
+        chatBox.scrollTop =
+            chatBox.scrollHeight;
+
+
+        /*
+         * Clear Input
+         */
+
+        messageInput.value = "";
+
+
+        try {
+
+            /*
+             * Send message + selected language
+             * to Flask backend
+             */
+
+            const response =
+                await fetch("/chat", {
+
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+
+                    body: JSON.stringify({
+
+                        message: message,
+
+                        language: language
+
+                    })
+
+                });
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Server returned an error"
+                );
+
             }
 
-            const chatBox = document.getElementById("chat-box");
 
-            chatBox.innerHTML +=
-                `<p><strong>You:</strong> ${message}</p>`;
+            const data =
+                await response.json();
 
-            const response = await fetch("/chat", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({
-                    message: message
-                })
-            });
 
-            const data = await response.json();
+            /*
+             * Display Bot Response
+             */
 
-            chatBox.innerHTML +=
-                `<p><strong>Bot:</strong> ${data.response}</p>`;
+            const botMessage =
+                document.createElement("div");
 
-            messageInput.value = "";
+            botMessage.className =
+                "message";
+
+
+            const botLabel =
+                document.createElement("span");
+
+            botLabel.className =
+                "message-label";
+
+            botLabel.textContent =
+                "Bot: ";
+
+
+            botMessage.appendChild(botLabel);
+
+            botMessage.appendChild(
+                document.createTextNode(
+                    data.response
+                )
+            );
+
+
+            chatBox.appendChild(
+                botMessage
+            );
+
+
+            chatBox.scrollTop =
+                chatBox.scrollHeight;
+
         }
-    </script>
+
+        catch (error) {
+
+            console.error(
+                "Chat error:",
+                error
+            );
+
+
+            const errorMessage =
+                document.createElement("div");
+
+            errorMessage.className =
+                "message";
+
+
+            const errorLabel =
+                document.createElement("span");
+
+            errorLabel.className =
+                "message-label";
+
+            errorLabel.textContent =
+                "Bot: ";
+
+
+            errorMessage.appendChild(
+                errorLabel
+            );
+
+            errorMessage.appendChild(
+                document.createTextNode(
+                    "Unable to connect to the chatbot server."
+                )
+            );
+
+
+            chatBox.appendChild(
+                errorMessage
+            );
+
+
+            chatBox.scrollTop =
+                chatBox.scrollHeight;
+        }
+
+
+        messageInput.focus();
+    }
+
+
+    /*
+     * ENTER = SEND
+     *
+     * SHIFT + ENTER = do not send
+     */
+
+    document
+        .getElementById("message")
+        .addEventListener(
+            "keydown",
+            function(event) {
+
+                if (
+                    event.key === "Enter" &&
+                    !event.shiftKey
+                ) {
+
+                    event.preventDefault();
+
+                    sendMessage();
+                }
+
+            }
+        );
+
+</script>
 
 </body>
+
 </html>
