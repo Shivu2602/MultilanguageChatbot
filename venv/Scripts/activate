@@ -35,7 +35,7 @@ deactivate () {
 # unset irrelevant variables
 deactivate nondestructive
 
-VIRTUAL_ENV="C:\Users\HP\Desktop\Multilanguage_Chatbot\venv"
+VIRTUAL_ENV="C:\Users\HP\Desktop\MultilanguageChatbot\venv"
 export VIRTUAL_ENV
 
 _OLD_VIRTUAL_PATH="$PATH"
