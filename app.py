@@ -5,270 +5,200 @@ import re
 from difflib import SequenceMatcher
 from deep_translator import GoogleTranslator
 
+
+# =========================================================
+# FLASK APPLICATION
+# =========================================================
+
 app = Flask(__name__)
 
-# Secret key required for Flask sessions
 app.secret_key = "multilanguage_chatbot_secret_key"
 
 
-# =========================================
-# LOAD RESPONSES FROM JSON
-# =========================================
+# =========================================================
+# LOAD RESPONSES
+# =========================================================
 
 with open("data/responses.json", "r", encoding="utf-8") as file:
     responses = json.load(file)
 
+with open("data/college_data.json", "r", encoding="utf-8") as file:
+    college_data = json.load(file)
 
-# =========================================
-# ENGLISH INTENT PATTERNS
-# =========================================
+# =========================================================
+# ENGLISH PATTERNS
+# =========================================================
 
 patterns = {
 
     "greeting": [
-        r"\bhello\b",
-        r"\bhi\b",
-        r"\bhey\b",
-        r"\bhello chatbot\b",
-        r"\bhi chatbot\b",
-        r"\bhey there\b",
-        r"\bgood morning\b",
-        r"\bgood afternoon\b",
-        r"\bgood evening\b",
-        r"\bhow are you\b",
-        r"\bhow are you doing\b",
-        r"\bhow is it going\b"
+        "hi",
+        "hii",
+        "hiii",
+        "hello",
+        "hey",
+        "hey there",
+        "good morning",
+        "good afternoon",
+        "good evening",
+        "how are you",
+        "how are you doing",
+        "what's up",
+        "whats up",
+        "nice to meet you"
     ],
 
     "thanks": [
-        r"\bthank you\b",
-        r"\bthanks\b",
-        r"\bthank\b",
-        r"\bthanks a lot\b",
-        r"\bthank you so much\b",
-        r"\bmany thanks\b",
-        r"\bthanks for helping\b",
-        r"\bthank you for helping\b"
+        "thanks",
+        "thank you",
+        "thankyou",
+        "thank u",
+        "thanks a lot",
+        "thank you so much",
+        "many thanks"
     ],
 
     "goodbye": [
-        r"\bbye\b",
-        r"\bgoodbye\b",
-        r"\bsee you\b",
-        r"\bsee you later\b",
-        r"\btalk to you later\b",
-        r"\bsee you again\b",
-        r"\bcatch you later\b",
-        r"\bi have to go\b"
+        "bye",
+        "goodbye",
+        "good bye",
+        "see you",
+        "see you later",
+        "talk to you later",
+        "take care"
     ],
 
     "help": [
-        r"\bhelp\b",
-        r"\bcan you help me\b",
-        r"\bi need help\b",
-        r"\bwhat can you do\b",
-        r"\bhow can you help me\b",
-        r"\bhow do you help\b",
-        r"\bwhat do you know\b",
-        r"\bhow can i use you\b",
-        r"\bwhat can i ask you\b",
-        r"\bwhat questions can i ask\b"
+        "help",
+        "help me",
+        "what can you do",
+        "what do you know",
+        "how can you help me",
+        "what can i ask",
+        "what questions can i ask"
     ],
 
     "college_location": [
-        r"\bwhere is the college\b",
-        r"\bwhere is rymec\b",
-        r"\bwhere is rym engineering college\b",
-        r"\bwhere is rymec located\b",
-        r"\bcollege location\b",
-        r"\bcollege address\b",
-        r"\bwhat is the college address\b",
-        r"\bwhere can i find the college\b",
-        r"\bwhere is the college located\b",
-        r"\bwhere can i find rymec\b",
-        r"\bwhat is the location of the college\b",
-        r"\bwhat is the location of rymec\b",
-        r"\bcollege is located where\b",
-        r"\bwhere can i visit the college\b"
+        "where is the college",
+        "where is your college",
+        "college location",
+        "college address",
+        "where is rymec",
+        "where is rym engineering college",
+        "where is rym engineering college located",
+        "where is rymec located",
+        "location of rymec",
+        "location of the college",
+        "address of the college",
+        "college situated",
+        "where college is located"
     ],
 
     "courses": [
-        r"\bwhat courses\b",
-        r"\bwhich courses\b",
-        r"\bwhat branches\b",
-        r"\bwhich branches\b",
-        r"\bavailable courses\b",
-        r"\bavailable branches\b",
-        r"\bcollege courses\b",
-        r"\bengineering branches\b",
-        r"\bwhat can i study\b",
-        r"\bwhat can i study here\b",
-        r"\bwhat programs are available\b",
-        r"\bwhat programs does the college offer\b",
-        r"\bwhat programs does rymec offer\b",
-        r"\bwhat engineering courses are available\b",
-        r"\bwhich engineering courses are offered\b",
-        r"\bwhat are the courses offered\b",
-        r"\bwhat are the available courses\b",
-        r"\bwhat branches are offered\b",
-        r"\bwhich branches are offered\b",
-        r"\bwhat can i study in rymec\b",
-        r"\bi want to know about the courses\b",
-        r"\btell me about the courses\b",
-        r"\btell me about available courses\b",
-        r"\btell me the branches\b",
-        r"\blist the courses\b",
-        r"\blist the branches\b",
-        r"\bwhat can i choose\b",
-        r"\bwhich course can i choose\b"
+        "courses",
+        "course",
+        "what courses are available",
+        "what courses are offered",
+        "which courses are available",
+        "which branches are available",
+        "branches available",
+        "engineering branches",
+        "what branches does the college have",
+        "what are the branches",
+        "programs offered",
+        "degree courses"
     ],
 
     "timings": [
-        r"\bcollege timing\b",
-        r"\bcollege timings\b",
-        r"\bcollege time\b",
-        r"\bcollege working hours\b",
-        r"\bwhat are the college timings\b",
-        r"\bwhen does college start\b",
-        r"\bwhen does college end\b",
-        r"\bwhat time does college start\b",
-        r"\bwhat time does college end\b",
-        r"\bwhen does the college open\b",
-        r"\bwhen does the college close\b",
-        r"\bwhat time does college open\b",
-        r"\bwhat time does college close\b",
-        r"\bwhat are the working hours\b",
-        r"\bwhen is the college open\b",
-        r"\bwhen is the college closed\b",
-        r"\bcollege opens at what time\b",
-        r"\bcollege closes at what time\b",
-        r"\bcollege starts at what time\b",
-        r"\bcollege ends at what time\b",
-        r"\bhow many hours is the college open\b"
+        "timings",
+        "timing",
+        "college timing",
+        "college timings",
+        "college working hours",
+        "working hours",
+        "when does college start",
+        "when does college end",
+        "college starts at",
+        "college ends at",
+        "what time does college start",
+        "what time does college close"
     ],
 
     "admission": [
-        r"\badmission\b",
-        r"\badmissions\b",
-        r"\bhow to get admission\b",
-        r"\bhow can i get admission\b",
-        r"\bcollege admission\b",
-        r"\bcet admission\b",
-        r"\bmanagement admission\b",
-        r"\badmission process\b",
-        r"\bhow to join the college\b",
-        r"\bhow can i join the college\b",
-        r"\bhow do i get admission\b",
-        r"\bhow can i take admission\b",
-        r"\bhow to take admission\b",
-        r"\bhow do i join rymec\b",
-        r"\bhow can i join rymec\b",
-        r"\bwhat is the admission process\b",
-        r"\bwhat is the admission procedure\b",
-        r"\bhow can i apply for admission\b",
-        r"\bhow do i apply for admission\b",
-        r"\bwhat are the admission options\b",
-        r"\bcan i get admission through cet\b",
-        r"\bdoes rymec accept cet\b",
-        r"\bis management admission available\b"
+        "admission",
+        "admissions",
+        "admission process",
+        "how to get admission",
+        "how can i get admission",
+        "how do i get admission",
+        "admission procedure",
+        "admission details",
+        "how to join college",
+        "how can i join college",
+        "ways to get admission",
+        "cet admission",
+        "management admission"
     ],
 
     "departments": [
-        r"\bdepartments\b",
-        r"\bcollege departments\b",
-        r"\bwhat departments\b",
-        r"\bwhich departments\b",
-        r"\bdepartment list\b",
-        r"\bwhat departments are there\b",
-        r"\bwhat departments does the college have\b",
-        r"\blist the departments\b",
-        r"\bwhat are the college departments\b",
-        r"\bwhich departments are available\b",
-        r"\bwhat departments are available\b",
-        r"\btell me about the departments\b",
-        r"\bshow me the departments\b",
-        r"\bhow many departments\b"
+        "departments",
+        "department",
+        "which departments are there",
+        "what departments are there",
+        "college departments",
+        "engineering departments",
+        "list of departments",
+        "available departments",
+        "what are the departments"
     ],
 
     "facilities": [
-        r"\bfacilities\b",
-        r"\bcollege facilities\b",
-        r"\bwhat facilities\b",
-        r"\bwhat facilities are available\b",
-        r"\bcollege infrastructure\b",
-        r"\bwhat infrastructure does the college have\b",
-        r"\bhostel\b",
-        r"\bdoes the college have a hostel\b",
-        r"\bis there a hostel\b",
-        r"\bis hostel available\b",
-        r"\bdoes rymec have hostel\b",
-        r"\blibrary\b",
-        r"\bdoes the college have a library\b",
-        r"\bis there a library\b",
-        r"\bis library available\b",
-        r"\bdoes rymec have a library\b",
-        r"\blaborator(y|ies)\b",
-        r"\blabs\b",
-        r"\bdoes the college have labs\b",
-        r"\bsports\b",
-        r"\bdoes the college have sports\b",
-        r"\bsports facilities\b",
-        r"\bcomputer center\b",
-        r"\bcomputer facilities\b",
-        r"\bwhat facilities does rymec have\b",
-        r"\btell me about the facilities\b",
-        r"\bwhat facilities does the college provide\b",
-        r"\bwhat amenities are available\b"
+        "facilities",
+        "facility",
+        "college facilities",
+        "what facilities are available",
+        "what facilities does the college have",
+        "college infrastructure",
+        "infrastructure",
+        "hostel",
+        "library",
+        "labs",
+        "laboratories",
+        "sports",
+        "campus facilities"
     ],
 
     "contact": [
-        r"\bcontact\b",
-        r"\bcontact details\b",
-        r"\bcontact number\b",
-        r"\bphone number\b",
-        r"\btelephone\b",
-        r"\bemail\b",
-        r"\bcollege phone\b",
-        r"\bcollege email\b",
-        r"\bhow can i contact the college\b",
-        r"\bhow can i contact rymec\b",
-        r"\bwhat is the contact number\b",
-        r"\bwhat is the phone number\b",
-        r"\bwhat is the college phone number\b",
-        r"\bwhat is the college email\b",
-        r"\bhow do i contact the college\b",
-        r"\bhow do i contact rymec\b",
-        r"\bwhere can i contact the college\b",
-        r"\bcan you give me the contact details\b",
-        r"\bgive me the college contact\b"
+        "contact",
+        "contact details",
+        "contact number",
+        "phone number",
+        "college phone number",
+        "college contact number",
+        "how can i contact the college",
+        "college telephone",
+        "telephone number",
+        "email",
+        "college email"
     ],
 
     "college": [
-        r"\btell me about the college\b",
-        r"\babout the college\b",
-        r"\babout rymec\b",
-        r"\bcollege information\b",
-        r"\bcollege info\b",
-        r"\bwhat is rymec\b",
-        r"\bwhat is rym engineering college\b",
-        r"\btell me about rymec\b",
-        r"\bi want to know about the college\b",
-        r"\bi want information about the college\b",
-        r"\bgive me information about the college\b",
-        r"\bgive me college information\b",
-        r"\bcan you tell me about the college\b",
-        r"\bcan you tell me about rymec\b",
-        r"\bwhat do you know about rymec\b",
-        r"\bwhat do you know about the college\b",
-        r"\bmore information about rymec\b",
-        r"\bmore information about the college\b"
+        "college",
+        "about college",
+        "about the college",
+        "tell me about the college",
+        "tell me about rymec",
+        "tell me about rym engineering college",
+        "information about college",
+        "college information",
+        "rymec",
+        "rym engineering college",
+        "ry mec"
     ]
 }
-
-
-# =========================================
-# KANNADA INTENT PATTERNS
-# =========================================
+# =========================================================
+# KANNADA PATTERNS
+# =========================================================
 
 kannada_patterns = {
 
@@ -278,201 +208,120 @@ kannada_patterns = {
         "ಹಾಯ್",
         "ಹಲೋ",
         "ಹೇ",
-        "ಹೇಗಿದ್ದೀರಾ",
-        "ಎಲ್ಲಾ ಹೇಗಿದೆ"
+        "ಶುಭೋದಯ",
+        "ಶುಭ ಮಧ್ಯಾಹ್ನ",
+        "ಶುಭ ಸಂಜೆ"
     ],
 
     "thanks": [
         "ಧನ್ಯವಾದ",
         "ಧನ್ಯವಾದಗಳು",
-        "ತುಂಬಾ ಧನ್ಯವಾದಗಳು",
-        "ಸಹಾಯ ಮಾಡಿದ್ದಕ್ಕೆ ಧನ್ಯವಾದ",
-        "ಸಹಾಯಕ್ಕೆ ಧನ್ಯವಾದ"
+        "ತುಂಬಾ ಧನ್ಯವಾದ",
+        "ತುಂಬಾ ಧನ್ಯವಾದಗಳು"
     ],
 
     "goodbye": [
-        "ವಿದಾಯ",
         "ಬೈ",
+        "ವಿದಾಯ",
         "ಮತ್ತೆ ಸಿಗೋಣ",
-        "ಮತ್ತೆ ಭೇಟಿಯಾಗೋಣ",
-        "ನಂತರ ಸಿಗೋಣ",
-        "ಹೋಗುತ್ತೇನೆ"
+        "ನಂತರ ಸಿಗೋಣ"
     ],
 
     "help": [
         "ಸಹಾಯ",
         "ಸಹಾಯ ಮಾಡಿ",
-        "ನನಗೆ ಸಹಾಯ ಬೇಕು",
-        "ನೀವು ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು",
         "ನೀವು ಏನು ಮಾಡಬಹುದು",
-        "ನನಗೆ ಸಹಾಯ ಬೇಕಾಗಿದೆ",
-        "ನಾನು ಏನು ಕೇಳಬಹುದು",
-        "ನೀವು ಯಾವ ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರಿಸಬಹುದು",
-        "ನಿಮ್ಮಿಂದ ಏನು ಸಹಾಯ ಪಡೆಯಬಹುದು"
+        "ನೀವು ಹೇಗೆ ಸಹಾಯ ಮಾಡಬಹುದು",
+        "ನಾನು ಏನು ಕೇಳಬಹುದು"
     ],
 
     "college_location": [
         "ಕಾಲೇಜು ಎಲ್ಲಿದೆ",
-        "ಕಾಲೇಜಿನ ಸ್ಥಳ",
-        "ಕಾಲೇಜಿನ ವಿಳಾಸ",
-        "ಕಾಲೇಜು ಯಾವ ಸ್ಥಳದಲ್ಲಿದೆ",
-        "RYMEC ಎಲ್ಲಿದೆ",
-        "ಆರ್‌ವೈಎಂಇಸಿ ಎಲ್ಲಿದೆ",
+        "ಕಾಲೇಜ್ ಎಲ್ಲಿದೆ",
+        "ಕಾಲೇಜಿನ ಸ್ಥಳ ಎಲ್ಲಿದೆ",
         "ಕಾಲೇಜಿನ ವಿಳಾಸ ಏನು",
-        "ಕಾಲೇಜು ಎಲ್ಲಿದೆ ಎಂದು ಹೇಳಿ",
-        "ಕಾಲೇಜು ಯಾವ ಕಡೆ ಇದೆ",
-        "RYMEC ಯಾವ ಸ್ಥಳದಲ್ಲಿದೆ",
-        "ಕಾಲೇಜಿನ ಸ್ಥಳ ಯಾವುದು",
-        "ಕಾಲೇಜಿನ ವಿಳಾಸ ತಿಳಿಸಿ",
-        "ಕಾಲೇಜನ್ನು ಎಲ್ಲಿ ಕಾಣಬಹುದು"
+        "ಆರ್ ವೈ ಎಂ ಇ ಸಿ ಎಲ್ಲಿದೆ",
+        "ಆರ್ ವೈ ಎಂ ಇಂಜಿನಿಯರಿಂಗ್ ಕಾಲೇಜು ಎಲ್ಲಿದೆ",
+        "ಕಾಲೇಜು ಯಾವ ಸ್ಥಳದಲ್ಲಿದೆ"
     ],
 
     "courses": [
-        "ಯಾವ ಕೋರ್ಸ್‌ಗಳು ಇವೆ",
+        "ಕೋರ್ಸ್‌ಗಳು ಯಾವುವು",
+        "ಕೋರ್ಸ್‌ಗಳು",
         "ಯಾವ ಕೋರ್ಸ್‌ಗಳಿವೆ",
-        "ಯಾವ ಕೋರ್ಸ್‌ಗಳು ಲಭ್ಯವಿವೆ",
-        "ಯಾವ ಬ್ರಾಂಚ್‌ಗಳಿವೆ",
-        "ಯಾವ ವಿಭಾಗಗಳಿವೆ",
-        "ಕಾಲೇಜಿನಲ್ಲಿ ಯಾವ ಕೋರ್ಸ್‌ಗಳಿವೆ",
-        "ಎಂಜಿನಿಯರಿಂಗ್ ಕೋರ್ಸ್‌ಗಳು ಯಾವುವು",
-        "ನಾನು ಏನು ಓದಬಹುದು",
-        "ಇಲ್ಲಿ ಏನು ಓದಬಹುದು",
-        "ಯಾವ ಕಾರ್ಯಕ್ರಮಗಳು ಲಭ್ಯವಿವೆ",
-        "ಯಾವ ಕೋರ್ಸ್‌ಗಳನ್ನು ನೀಡಲಾಗುತ್ತದೆ",
-        "ಯಾವ ಕೋರ್ಸ್‌ಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಬಹುದು",
-        "ಲಭ್ಯವಿರುವ ಕೋರ್ಸ್‌ಗಳ ಬಗ್ಗೆ ತಿಳಿಸಿ",
-        "ಕೋರ್ಸ್‌ಗಳ ಬಗ್ಗೆ ಮಾಹಿತಿ ಬೇಕು",
-        "ಕೋರ್ಸ್‌ಗಳ ಬಗ್ಗೆ ಹೇಳಿ",
-        "ಯಾವ ಬ್ರಾಂಚ್‌ಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಬಹುದು",
-        "ಯಾವ ವಿಭಾಗಗಳನ್ನು ಆಯ್ಕೆ ಮಾಡಬಹುದು",
-        "ಕಾಲೇಜಿನಲ್ಲಿ ಏನು ಓದಬಹುದು",
-        "ಕಾಲೇಜಿನಲ್ಲಿ ಯಾವ ಬ್ರಾಂಚ್‌ಗಳಿವೆ",
-        "ಕೋರ್ಸ್‌ಗಳ ಪಟ್ಟಿ ನೀಡಿ"
+        "ಯಾವ ಶಾಖೆಗಳಿವೆ",
+        "ಶಾಖೆಗಳು ಯಾವುವು",
+        "ಎಂಜಿನಿಯರಿಂಗ್ ಶಾಖೆಗಳು",
+        "ಕಾಲೇಜಿನಲ್ಲಿ ಯಾವ ಕೋರ್ಸ್‌ಗಳಿವೆ"
     ],
 
     "timings": [
-        "ಕಾಲೇಜಿನ ಸಮಯ",
         "ಕಾಲೇಜಿನ ಸಮಯ ಏನು",
+        "ಕಾಲೇಜಿನ ಸಮಯಗಳು",
         "ಕಾಲೇಜು ಸಮಯ",
-        "ಕಾಲೇಜಿನ ಕಾರ್ಯನಿರ್ವಹಣಾ ಸಮಯ",
-        "ಕಾಲೇಜು ಯಾವ ಸಮಯಕ್ಕೆ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ",
-        "ಕಾಲೇಜು ಯಾವ ಸಮಯಕ್ಕೆ ಮುಗಿಯುತ್ತದೆ",
         "ಕಾಲೇಜು ಯಾವಾಗ ಪ್ರಾರಂಭವಾಗುತ್ತದೆ",
         "ಕಾಲೇಜು ಯಾವಾಗ ಮುಗಿಯುತ್ತದೆ",
-        "ಕಾಲೇಜು ಬೆಳಿಗ್ಗೆ ಯಾವ ಸಮಯಕ್ಕೆ ತೆರೆಯುತ್ತದೆ",
-        "ಕಾಲೇಜು ಸಂಜೆ ಯಾವ ಸಮಯಕ್ಕೆ ಮುಚ್ಚುತ್ತದೆ",
-        "ಕಾಲೇಜು ಯಾವ ಸಮಯಕ್ಕೆ ತೆರೆಯುತ್ತದೆ",
-        "ಕಾಲೇಜು ಯಾವ ಸಮಯಕ್ಕೆ ಮುಚ್ಚುತ್ತದೆ",
-        "ಕಾಲೇಜಿನ ಕೆಲಸದ ಸಮಯ ಎಷ್ಟು",
-        "ಕಾಲೇಜಿನ ಕಾರ್ಯ ಸಮಯ ತಿಳಿಸಿ",
-        "ಕಾಲೇಜು ಎಷ್ಟು ಗಂಟೆ ತೆರೆದಿರುತ್ತದೆ"
+        "ಕಾಲೇಜಿನ ಕೆಲಸದ ಸಮಯ"
     ],
 
     "admission": [
-        "ಪ್ರವೇಶ",
-        "ಪ್ರವೇಶದ ಬಗ್ಗೆ",
-        "ಪ್ರವೇಶದ ಬಗ್ಗೆ ಹೇಳಿ",
-        "ಕಾಲೇಜು ಪ್ರವೇಶ",
-        "CET ಪ್ರವೇಶ",
-        "ಮ್ಯಾನೇಜ್‌ಮೆಂಟ್ ಪ್ರವೇಶ",
-        "ಪ್ರವೇಶ ಪ್ರಕ್ರಿಯೆ",
-        "ಕಾಲೇಜಿಗೆ ಹೇಗೆ ಪ್ರವೇಶ ಪಡೆಯುವುದು",
-        "ಕಾಲೇಜಿಗೆ ಹೇಗೆ ಸೇರಬಹುದು",
-        "ಪ್ರವೇಶ ಹೇಗೆ ಪಡೆಯಬಹುದು",
-        "ಪ್ರವೇಶ ಪಡೆಯುವುದು ಹೇಗೆ",
-        "ಕಾಲೇಜಿಗೆ ಸೇರಲು ಹೇಗೆ",
-        "ಕಾಲೇಜಿಗೆ ಪ್ರವೇಶ ಪಡೆಯಲು ಹೇಗೆ",
-        "CET ಮೂಲಕ ಪ್ರವೇಶ ಪಡೆಯಬಹುದೇ",
-        "ಮ್ಯಾನೇಜ್‌ಮೆಂಟ್ ಮೂಲಕ ಪ್ರವೇಶ ಇದೆಯೇ",
-        "ಪ್ರವೇಶದ ವಿಧಾನ ಏನು",
-        "ಪ್ರವೇಶದ ಪ್ರಕ್ರಿಯೆ ಏನು"
+        "ಪ್ರವೇಶ ಹೇಗೆ ಪಡೆಯುವುದು",
+        "ಕಾಲೇಜಿಗೆ ಪ್ರವೇಶ ಹೇಗೆ",
+        "ಪ್ರವೇಶ ಪ್ರಕ್ರಿಯೆ ಏನು",
+        "ಅಡ್ಮಿಷನ್ ಹೇಗೆ",
+        "ಅಡ್ಮಿಷನ್ ಪ್ರಕ್ರಿಯೆ",
+        "ಸಿಇಟಿ ಮೂಲಕ ಪ್ರವೇಶ",
+        "ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಪ್ರವೇಶ"
     ],
 
     "departments": [
-        "ವಿಭಾಗಗಳು",
-        "ಕಾಲೇಜಿನ ವಿಭಾಗಗಳು",
-        "ಯಾವ ವಿಭಾಗಗಳಿವೆ",
-        "ಯಾವ ವಿಭಾಗಗಳು ಇವೆ",
-        "ವಿಭಾಗಗಳ ಪಟ್ಟಿ",
+        "ವಿಭಾಗಗಳು ಯಾವುವು",
         "ಕಾಲೇಜಿನಲ್ಲಿ ಯಾವ ವಿಭಾಗಗಳಿವೆ",
-        "ಯಾವ ವಿಭಾಗಗಳು ಲಭ್ಯವಿವೆ",
-        "ಕಾಲೇಜಿನ ಯಾವ ವಿಭಾಗಗಳಿವೆ",
-        "ವಿಭಾಗಗಳ ಬಗ್ಗೆ ತಿಳಿಸಿ",
-        "ವಿಭಾಗಗಳ ಬಗ್ಗೆ ಮಾಹಿತಿ ಬೇಕು",
-        "ವಿಭಾಗಗಳ ಪಟ್ಟಿಯನ್ನು ನೀಡಿ"
+        "ಯಾವ ವಿಭಾಗಗಳಿವೆ",
+        "ಎಂಜಿನಿಯರಿಂಗ್ ವಿಭಾಗಗಳು",
+        "ವಿಭಾಗಗಳ ಪಟ್ಟಿ"
     ],
 
     "facilities": [
-        "ಸೌಲಭ್ಯಗಳು",
+        "ಸೌಲಭ್ಯಗಳು ಯಾವುವು",
         "ಕಾಲೇಜಿನ ಸೌಲಭ್ಯಗಳು",
-        "ಯಾವ ಸೌಲಭ್ಯಗಳಿವೆ",
         "ಕಾಲೇಜಿನಲ್ಲಿ ಯಾವ ಸೌಲಭ್ಯಗಳಿವೆ",
-        "ಕಾಲೇಜಿನ ಮೂಲಸೌಕರ್ಯ",
-        "ಹಾಸ್ಟೆಲ್",
-        "ಕಾಲೇಜಿನಲ್ಲಿ ಹಾಸ್ಟೆಲ್ ಇದೆಯೇ",
-        "ಹಾಸ್ಟೆಲ್ ಸೌಲಭ್ಯ ಇದೆಯೇ",
-        "ಹಾಸ್ಟೆಲ್ ಇದೆಯಾ",
-        "ಗ್ರಂಥಾಲಯ",
-        "ಲೈಬ್ರರಿ",
-        "ಕಾಲೇಜಿನಲ್ಲಿ ಲೈಬ್ರರಿ ಇದೆಯೇ",
-        "ಲ್ಯಾಬ್",
-        "ಲ್ಯಾಬ್‌ಗಳು",
-        "ಪ್ರಯೋಗಾಲಯ",
-        "ಕ್ರೀಡೆ",
-        "ಕ್ರೀಡಾ ಸೌಲಭ್ಯಗಳು",
-        "ಕಾಲೇಜಿನಲ್ಲಿ ಕ್ರೀಡಾ ಸೌಲಭ್ಯಗಳಿವೆಯೇ",
-        "ಕಂಪ್ಯೂಟರ್ ಸೆಂಟರ್",
-        "ಕಂಪ್ಯೂಟರ್ ಸೌಲಭ್ಯಗಳು",
-        "ಕಾಲೇಜಿನಲ್ಲಿ ಯಾವ ಸೌಲಭ್ಯಗಳು ಲಭ್ಯವಿವೆ",
-        "ಸೌಲಭ್ಯಗಳ ಬಗ್ಗೆ ಮಾಹಿತಿ ಬೇಕು",
-        "ಕಾಲೇಜಿನ ಸೌಲಭ್ಯಗಳ ಬಗ್ಗೆ ಹೇಳಿ"
+        "ಹಾಸ್ಟೆಲ್ ಇದೆಯೇ",
+        "ಗ್ರಂಥಾಲಯ ಇದೆಯೇ",
+        "ಲ್ಯಾಬ್‌ಗಳು ಇವೆಯೇ",
+        "ಕ್ರೀಡಾ ಸೌಲಭ್ಯಗಳಿವೆಯೇ"
     ],
 
     "contact": [
-        "ಸಂಪರ್ಕ",
-        "ಸಂಪರ್ಕ ವಿವರಗಳು",
-        "ಸಂಪರ್ಕ ಸಂಖ್ಯೆ",
-        "ಫೋನ್ ಸಂಖ್ಯೆ",
-        "ದೂರವಾಣಿ ಸಂಖ್ಯೆ",
-        "ಇಮೇಲ್",
-        "ಕಾಲೇಜಿನ ಫೋನ್",
-        "ಕಾಲೇಜಿನ ಇಮೇಲ್",
+        "ಸಂಪರ್ಕ ಸಂಖ್ಯೆ ಏನು",
+        "ಕಾಲೇಜಿನ ಸಂಪರ್ಕ ಸಂಖ್ಯೆ",
+        "ಫೋನ್ ನಂಬರ್ ಏನು",
+        "ಕಾಲೇಜಿನ ಫೋನ್ ನಂಬರ್",
         "ಕಾಲೇಜನ್ನು ಹೇಗೆ ಸಂಪರ್ಕಿಸುವುದು",
-        "RYMEC ಅನ್ನು ಹೇಗೆ ಸಂಪರ್ಕಿಸುವುದು",
-        "ಕಾಲೇಜಿನ ಸಂಪರ್ಕ ಸಂಖ್ಯೆ ಏನು",
-        "ಕಾಲೇಜಿನ ಫೋನ್ ಸಂಖ್ಯೆ ಏನು",
-        "ಕಾಲೇಜಿನ ಇಮೇಲ್ ಏನು",
-        "ಕಾಲೇಜಿನ ಸಂಪರ್ಕ ವಿವರಗಳನ್ನು ನೀಡಿ",
-        "ಕಾಲೇಜನ್ನು ಸಂಪರ್ಕಿಸುವುದು ಹೇಗೆ"
+        "ಸಂಪರ್ಕ ವಿವರಗಳು",
+        "ಕಾಲೇಜಿನ ಇಮೇಲ್"
     ],
 
     "college": [
-        "ಕಾಲೇಜಿನ ಬಗ್ಗೆ",
         "ಕಾಲೇಜಿನ ಬಗ್ಗೆ ಹೇಳಿ",
         "ಕಾಲೇಜಿನ ಮಾಹಿತಿ",
-        "RYMEC ಬಗ್ಗೆ",
-        "ಆರ್‌ವೈಎಂಇಸಿ ಬಗ್ಗೆ",
-        "RYMEC ಬಗ್ಗೆ ಹೇಳಿ",
-        "ಕಾಲೇಜಿನ ಬಗ್ಗೆ ಮಾಹಿತಿ ನೀಡಿ",
-        "ನನಗೆ ಕಾಲೇಜಿನ ಬಗ್ಗೆ ತಿಳಿಯಬೇಕು",
-        "ಕಾಲೇಜಿನ ಬಗ್ಗೆ ಮಾಹಿತಿ ಬೇಕು",
-        "ಕಾಲೇಜಿನ ಕುರಿತು ಹೇಳಿ",
-        "ಕಾಲೇಜಿನ ಕುರಿತು ಮಾಹಿತಿ ನೀಡಿ",
-        "RYMEC ಬಗ್ಗೆ ಮಾಹಿತಿ ಬೇಕು",
-        "ಕಾಲೇಜಿನ ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ತಿಳಿಸಿ"
+        "ಆರ್ ವೈ ಎಂ ಇ ಸಿ ಬಗ್ಗೆ ಹೇಳಿ",
+        "ಕಾಲೇಜು ಬಗ್ಗೆ ಮಾಹಿತಿ",
+        "ಈ ಕಾಲೇಜಿನ ಬಗ್ಗೆ ಹೇಳಿ"
     ]
 }
 
 
-# =========================================
+# =========================================================
 # ENGLISH KEYWORDS
-# =========================================
+# =========================================================
 
 english_keywords = {
 
     "greeting": [
-        "hello",
         "hi",
+        "hii",
+        "hello",
         "hey",
         "morning",
         "afternoon",
@@ -480,33 +329,29 @@ english_keywords = {
     ],
 
     "thanks": [
-        "thank",
         "thanks",
-        "grateful",
-        "appreciate"
+        "thank"
     ],
 
     "goodbye": [
         "bye",
         "goodbye",
-        "later",
-        "see you"
+        "later"
     ],
 
     "help": [
         "help",
         "assist",
-        "support",
-        "what can you do"
+        "questions",
+        "ask"
     ],
 
     "college_location": [
         "where",
         "location",
-        "located",
         "address",
-        "place",
-        "find"
+        "situated",
+        "located"
     ],
 
     "courses": [
@@ -515,9 +360,7 @@ english_keywords = {
         "branch",
         "branches",
         "program",
-        "programs",
-        "study",
-        "engineering"
+        "programs"
     ],
 
     "timings": [
@@ -526,26 +369,22 @@ english_keywords = {
         "timings",
         "hours",
         "start",
-        "end",
-        "open",
-        "close"
+        "close",
+        "end"
     ],
 
     "admission": [
         "admission",
         "admissions",
         "join",
-        "apply",
+        "joining",
         "cet",
-        "management",
-        "enroll"
+        "management"
     ],
 
     "departments": [
         "department",
-        "departments",
-        "section",
-        "sections"
+        "departments"
     ],
 
     "facilities": [
@@ -555,213 +394,188 @@ english_keywords = {
         "library",
         "lab",
         "labs",
-        "laboratory",
         "sports",
-        "computer",
-        "infrastructure",
-        "workshop",
-        "internet"
+        "infrastructure"
     ],
 
     "contact": [
         "contact",
         "phone",
         "number",
-        "telephone",
         "email",
-        "call"
+        "telephone"
     ],
 
     "college": [
         "college",
-        "rymec"
+        "rymec",
+        "engineering"
     ]
 }
 
 
-# =========================================
-# TYPO / FUZZY MATCH KEYWORDS
-# =========================================
+#=========================================================
+# FUZZY TYPO KEYWORDS
+# =========================================================
 
 fuzzy_keywords = {
 
     "greeting": [
-        "hello",
         "hi",
-        "hey",
-        "hii",
-        "hiii",
-        "helo",
-        "helloo",
-        "heyy",
-        "hiiiii"
+        "hello",
+        "hey"
     ],
 
     "thanks": [
         "thanks",
-        "thank",
-        "thankyou",
-        "thnks",
-        "thx",
-        "thanksss"
+        "thankyou"
     ],
 
     "goodbye": [
         "bye",
-        "byee",
-        "goodbye",
-        "goodby",
-        "seeyou"
+        "goodbye"
     ],
 
     "help": [
-        "help",
-        "helpp",
-        "hepl",
-        "halp",
-        "assist"
+        "help"
     ],
 
     "college_location": [
         "location",
-        "located",
         "address",
-        "adress",
-        "loction",
         "where"
     ],
 
     "courses": [
         "course",
         "courses",
-        "coursee",
-        "cours",
-        "cousres",
-        "corses",
         "branch",
-        "branches",
-        "program",
-        "study"
+        "branches"
     ],
 
     "timings": [
-        "time",
         "timing",
         "timings",
-        "tim",
-        "hours",
-        "opening",
-        "closing"
+        "hours"
     ],
 
     "admission": [
         "admission",
-        "admisn",
-        "admisson",
-        "admissionn",
-        "admit",
-        "apply",
-        "join"
+        "admissions"
     ],
 
     "departments": [
         "department",
-        "departments",
-        "deparment",
-        "departmnt",
-        "dept"
+        "departments"
     ],
 
     "facilities": [
         "facility",
         "facilities",
-        "facilty",
-        "facilites",
-        "hostel",
         "library",
-        "libary",
-        "librery",
-        "lab",
-        "labs",
-        "sports",
-        "computer"
+        "hostel",
+        "labs"
     ],
 
     "contact": [
         "contact",
-        "contct",
-        "conatct",
         "phone",
-        "phne",
-        "number",
-        "email",
-        "emal"
+        "email"
     ],
 
     "college": [
         "college",
-        "collage",
-        "colleg",
         "rymec"
     ]
 }
 
 
-# =========================================
-# KANNADA SCRIPT DETECTION
-# =========================================
+# =========================================================
+# LANGUAGE DETECTION
+# =========================================================
 
 def is_kannada(message):
+    """
+    Detect Kannada using Unicode range.
+    Kannada Unicode range: U+0C80 - U+0CFF
+    """
 
-    return bool(
-        re.search(r"[\u0C80-\u0CFF]", message)
-    )
+    return bool(re.search(r"[\u0C80-\u0CFF]", message))
 
 
-# =========================================
+# =========================================================
+# TEXT NORMALIZATION
+# =========================================================
+
+def normalize_text(text):
+
+    text = text.lower().strip()
+
+    # Remove unnecessary punctuation
+    text = re.sub(r"[?!.,;:'\"`]+", " ", text)
+
+    # Remove extra spaces
+    text = re.sub(r"\s+", " ", text)
+
+    return text.strip()
+
+
+# =========================================================
 # KANNADA INTENT RECOGNITION
-# =========================================
+# =========================================================
 
 def recognize_kannada_intent(message):
 
-    message = message.strip().lower()
+    normalized_message = normalize_text(message)
 
-    for intent, phrases in kannada_patterns.items():
+    for intent, examples in kannada_patterns.items():
 
-        for phrase in phrases:
+        for example in examples:
 
-            if phrase.lower() in message:
+            if normalize_text(example) == normalized_message:
+                return intent
+
+    # Partial matching
+    for intent, examples in kannada_patterns.items():
+
+        for example in examples:
+
+            normalized_example = normalize_text(example)
+
+            if normalized_example in normalized_message:
                 return intent
 
     return None
 
 
-# =========================================
-# ENGLISH INTENT RECOGNITION
-# =========================================
+# =========================================================
+# EXACT ENGLISH INTENT RECOGNITION
+# =========================================================
 
 def recognize_intent(message):
 
-    message = message.lower().strip()
+    normalized_message = normalize_text(message)
 
-    for intent, intent_patterns in patterns.items():
+    # Exact pattern matching
+    for intent, examples in patterns.items():
 
-        for pattern in intent_patterns:
+        for example in examples:
 
-            if re.search(pattern, message):
-
+            if normalize_text(example) == normalized_message:
                 return intent
 
-    return "default"
+    return None
 
 
-# =========================================
-# KEYWORD INTENT SCORING
-# =========================================
+# =========================================================
+# KEYWORD-BASED INTENT RECOGNITION
+# =========================================================
 
 def recognize_intent_by_keywords(message):
 
-    message = message.lower().strip()
+    normalized_message = normalize_text(message)
+
+    words = normalized_message.split()
 
     scores = {}
 
@@ -771,118 +585,195 @@ def recognize_intent_by_keywords(message):
 
         for keyword in keywords:
 
-            if keyword in message:
+            keyword = normalize_text(keyword)
 
-                if " " in keyword:
-                    score += 3
-                else:
-                    score += 1
+            # Exact word match
+            if keyword in words:
+                score += 2
 
-        if score > 0:
+            # Phrase match
+            if keyword in normalized_message:
+                score += 1
 
-            scores[intent] = score
+        scores[intent] = score
 
     if not scores:
+        return None
 
-        return "default"
+    best_intent = max(scores, key=scores.get)
 
-    best_intent = max(
-        scores,
-        key=scores.get
-    )
+    if scores[best_intent] > 0:
+        return best_intent
 
-    print("Keyword scores:", scores)
-
-    return best_intent
+    return None
 
 
-# =========================================
-# FUZZY TYPO RECOGNITION
-# =========================================
+# =========================================================
+# SIMILARITY CALCULATION
+# =========================================================
 
-def similarity(word1, word2):
+def similarity(text1, text2):
 
     return SequenceMatcher(
         None,
-        word1,
-        word2
+        normalize_text(text1),
+        normalize_text(text2)
     ).ratio()
 
 
+# =========================================================
+# TYPO / FUZZY INTENT RECOGNITION
+# =========================================================
+
 def recognize_typo_intent(message):
 
-    words = re.findall(
-        r"[a-zA-Z]+",
-        message.lower()
-    )
+    normalized_message = normalize_text(message)
 
-    best_intent = "default"
+    words = normalized_message.split()
+
+    best_intent = None
     best_score = 0
 
-    for word in words:
+    for intent, keywords in fuzzy_keywords.items():
 
-        # Ignore very short words
-        if len(word) < 2:
-            continue
-
-        for intent, keywords in fuzzy_keywords.items():
+        for word in words:
 
             for keyword in keywords:
 
-                score = similarity(
-                    word,
-                    keyword
-                )
+                score = similarity(word, keyword)
 
                 if score > best_score:
-
                     best_score = score
                     best_intent = intent
 
-    print(
-        "Fuzzy match:",
-        best_intent,
-        "Score:",
-        round(best_score, 2)
-    )
-
-    # Require a reasonable similarity
+    # Only accept reasonably close words
     if best_score >= 0.72:
-
         return best_intent
+
+    return None
+
+
+# =========================================================
+# SMART ENGLISH INTENT RECOGNITION
+# =========================================================
+
+def smart_english_intent(message):
+
+    normalized_message = normalize_text(message)
+
+    # -----------------------------------------------------
+    # Exact match
+    # -----------------------------------------------------
+
+    intent = recognize_intent(normalized_message)
+
+    if intent:
+        return intent
+
+    # -----------------------------------------------------
+    # Important phrase rules
+    # -----------------------------------------------------
+
+    location_phrases = [
+        "where is",
+        "where are",
+        "where can i find",
+        "located",
+        "location",
+        "address"
+    ]
+
+    if any(phrase in normalized_message for phrase in location_phrases):
+
+        if "college" in normalized_message or \
+           "rymec" in normalized_message or \
+           "engineering" in normalized_message:
+
+            return "college_location"
+
+    # Admission
+    if any(word in normalized_message for word in [
+        "admission",
+        "admissions",
+        "admisson",
+        "admissons"
+    ]):
+        return "admission"
+
+    # Courses / branches
+    if any(word in normalized_message for word in [
+        "course",
+        "courses",
+        "branch",
+        "branches",
+        "program",
+        "programs"
+    ]):
+        return "courses"
+
+    # Timings
+    if any(word in normalized_message for word in [
+        "timing",
+        "timings",
+        "time",
+        "hours"
+    ]) and "college" in normalized_message:
+
+        return "timings"
+
+    # Departments
+    if "department" in normalized_message or \
+       "departments" in normalized_message:
+
+        return "departments"
+
+    # Facilities
+    if any(word in normalized_message for word in [
+        "facility",
+        "facilities",
+        "hostel",
+        "library",
+        "lab",
+        "labs",
+        "sports",
+        "infrastructure"
+    ]):
+
+        return "facilities"
+
+    # Contact
+    if any(word in normalized_message for word in [
+        "contact",
+        "phone",
+        "telephone",
+        "email"
+    ]):
+
+        return "contact"
+    # -----------------------------------------------------
+    # Keyword matching
+    # -----------------------------------------------------
+
+    intent = recognize_intent_by_keywords(normalized_message)
+
+    if intent:
+        return intent
+
+    # -----------------------------------------------------
+    # Fuzzy typo matching
+    # -----------------------------------------------------
+
+    intent = recognize_typo_intent(normalized_message)
+
+    if intent:
+        return intent
 
     return "default"
 
 
-# =========================================
-# SMART ENGLISH INTENT RECOGNITION
-# =========================================
-
-def smart_english_intent(message):
-
-    # 1. Exact pattern recognition
-    intent = recognize_intent(message)
-
-    if intent != "default":
-
-        return intent
-
-    # 2. Keyword scoring
-    intent = recognize_intent_by_keywords(message)
-
-    if intent != "default":
-
-        return intent
-
-    # 3. Typo / fuzzy recognition
-    intent = recognize_typo_intent(message)
-
-    return intent
-
-
-# =========================================
+# =========================================================
 # TRANSLATE KANNADA TO ENGLISH
-# =========================================
+# =========================================================
 
 def translate_to_english(message):
 
@@ -893,42 +784,40 @@ def translate_to_english(message):
             target="en"
         ).translate(message)
 
-        print(
-            "Translated to English:",
-            translated
-        )
-
         return translated
 
     except Exception as error:
 
-        print(
-            "Translation error:",
-            error
-        )
+        print("Kannada translation error:", error)
 
-        return None
+        return message
 
 
-# =========================================
-# GET RESPONSE FROM JSON
-# =========================================
+# =========================================================
+# GENERATE RESPONSE
+# =========================================================
 
 def generate_response(language, intent):
 
+    # Make sure language exists
     if language not in responses:
-
         language = "en"
 
+    # Make sure intent exists
     if intent not in responses[language]:
-
         intent = "default"
 
     response_list = responses[language][intent]
 
-    previous_response = session.get(
-        "previous_response"
-    )
+    # Safety check
+    if not response_list:
+        return "Please try asking your question again."
+
+    # -----------------------------------------------------
+    # Avoid immediately repeating the same response
+    # -----------------------------------------------------
+
+    previous_response = session.get("previous_response")
 
     available_responses = [
         response
@@ -937,178 +826,246 @@ def generate_response(language, intent):
     ]
 
     if not available_responses:
-
         available_responses = response_list
 
-    response = random.choice(
-        available_responses
-    )
+    response = random.choice(available_responses)
 
     session["previous_response"] = response
 
     return response
 
 
-# =========================================
+# =========================================================
 # HOME PAGE
-# =========================================
+# =========================================================
 
 @app.route("/")
 def home():
 
-    return render_template(
-        "index.html"
-    )
+    return render_template("index.html")
+
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+@app.route("/admin/data", methods=["GET"])
+def get_college_data():
+    return jsonify(college_data)
 
 
-# =========================================
+@app.route("/admin/data", methods=["POST"])
+def update_college_data():
+    global college_data
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Invalid data."
+        }), 400
+
+    college_data = data
+
+    try:
+        with open(
+            "data/college_data.json",
+            "w",
+            encoding="utf-8"
+        ) as file:
+
+            json.dump(
+                college_data,
+                file,
+                ensure_ascii=False,
+                indent=4
+            )
+
+        return jsonify({
+            "success": True,
+            "message": "College information updated successfully."
+        })
+
+    except Exception as error:
+
+        print("Error saving college data:", error)
+
+        return jsonify({
+            "success": False,
+            "message": "Unable to save college information."
+        }), 500
+
+
+# =========================================================
+# TRANSLATOR API
+# =========================================================
+
+@app.route("/translate", methods=["POST"])
+def translate_text():
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "translation": "",
+            "error": "Invalid request."
+        }), 400
+
+    text = data.get("text", "").strip()
+
+    target_language = data.get("target", "kn")
+
+    # -----------------------------------------------------
+    # Empty text
+    # -----------------------------------------------------
+
+    if not text:
+
+        return jsonify({
+            "translation": "",
+            "error": "Please enter text to translate."
+        }), 400
+
+    # -----------------------------------------------------
+    # Allow only English and Kannada
+    # -----------------------------------------------------
+
+    if target_language not in ["en", "kn"]:
+        target_language = "kn"
+
+    try:
+
+        translator = GoogleTranslator(
+            source="auto",
+            target=target_language
+        )
+
+        translated = translator.translate(text)
+
+        if not translated:
+            raise Exception("Empty translation received")
+
+        print("--------------------------------")
+        print("Translation request")
+        print("Original:", text)
+        print("Target:", target_language)
+        print("Translation:", translated)
+        print("--------------------------------")
+
+        return jsonify({
+            "translation": translated,
+            "error": ""
+        })
+
+    except Exception as error:
+
+        print("TRANSLATION ERROR:", error)
+
+        return jsonify({
+            "translation": "",
+            "error": "Translation service is temporarily unavailable."
+        }), 500
+
+
+# =========================================================
 # CHAT API
-# =========================================
+# =========================================================
 
 @app.route("/chat", methods=["POST"])
 def chat():
 
     data = request.get_json()
 
+    if not data:
+
+        return jsonify({
+            "response": "Please enter a message.",
+            "intent": "default",
+            "language": "en"
+        })
+
     user_message = data.get(
         "message",
         ""
     ).strip()
 
+    # -----------------------------------------------------
+    # Empty message
+    # -----------------------------------------------------
 
     if not user_message:
 
         return jsonify({
-
-            "response":
-            "Please enter a message.",
-
-            "intent":
-            "default",
-
-            "language":
-            "en"
+            "response": "Please enter a message.",
+            "intent": "default",
+            "language": "en"
         })
 
+    print()
+    print("========================================")
+    print("User message:", user_message)
 
-    # =====================================
+    # =====================================================
     # AUTOMATIC LANGUAGE DETECTION
-    # =====================================
+    # =====================================================
 
     if is_kannada(user_message):
 
         language = "kn"
 
-    else:
+        # First try direct Kannada intent recognition
+        intent = recognize_kannada_intent(user_message)
 
-        language = "en"
-
-
-    print("\n================================")
-    print(
-        "User message:",
-        user_message
-    )
-
-    print(
-        "Detected language:",
-        language
-    )
-
-
-    # =====================================
-    # KANNADA PROCESSING
-    # =====================================
-
-    if language == "kn":
-
-        # First try direct Kannada recognition
-        intent = recognize_kannada_intent(
-            user_message
-        )
-
-        # If Kannada recognition fails,
-        # translate it to English
+        # If not recognized, translate Kannada to English
+        # and use English intent recognition
         if intent is None:
 
             english_message = translate_to_english(
                 user_message
             )
 
-            if english_message:
+            print(
+                "Translated Kannada:",
+                english_message
+            )
 
-                intent = smart_english_intent(
-                    english_message
-                )
-
-            else:
-
-                intent = "default"
-
-
-    # =====================================
-    # ENGLISH PROCESSING
-    # =====================================
+            intent = smart_english_intent(
+                english_message
+            )
 
     else:
+
+        language = "en"
 
         intent = smart_english_intent(
             user_message
         )
 
+    # =====================================================
+    # FOLLOW-UP QUESTIONS
+    # =====================================================
 
-    # =====================================
-    # CONVERSATION CONTEXT
-    # =====================================
+    normalized_message = normalize_text(user_message)
 
-    follow_up_phrases_en = [
-
+    follow_up_phrases = [
         "tell me more",
-        "more information",
-        "give me more",
         "more details",
-        "what about it",
-        "and what about it",
-        "tell me more about it",
-        "can you explain more"
-    ]
-
-
-    follow_up_phrases_kn = [
-
-        "ಇನ್ನಷ್ಟು ಹೇಳಿ",
-        "ಇನ್ನಷ್ಟು ಮಾಹಿತಿ",
+        "more information",
+        "what else",
+        "anything else",
+        "and",
+        "also",
+        "more",
+        "ಇನ್ನಷ್ಟು",
         "ಹೆಚ್ಚಿನ ಮಾಹಿತಿ",
-        "ಇನ್ನಷ್ಟು ವಿವರ",
-        "ಇದರ ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ಹೇಳಿ",
-        "ಇನ್ನಷ್ಟು ತಿಳಿಸಿ",
-        "ಮತ್ತಷ್ಟು ಮಾಹಿತಿ ನೀಡಿ"
+        "ಇನ್ನೇನು",
+        "ಮತ್ತಷ್ಟು"
     ]
 
-
-    normalized_message = (
-        user_message.lower().strip()
+    is_follow_up = any(
+        phrase == normalized_message
+        for phrase in follow_up_phrases
     )
-
-
-    if language == "en":
-
-        is_follow_up = any(
-
-            phrase in normalized_message
-
-            for phrase in follow_up_phrases_en
-        )
-
-    else:
-
-        is_follow_up = any(
-
-            phrase in user_message
-
-            for phrase in follow_up_phrases_kn
-        )
-
 
     if is_follow_up:
 
@@ -1120,57 +1077,44 @@ def chat():
 
             intent = previous_intent
 
+    # =====================================================
+    # SAVE CONVERSATION CONTEXT
+    # =====================================================
 
-    # =====================================
-    # SAVE CURRENT INTENT
-    # =====================================
+    session["previous_intent"] = intent
 
-    if intent != "default":
-
-        session["previous_intent"] = intent
-
-
-    print(
-        "Detected intent:",
-        intent
-    )
-
-
-    # =====================================
-    # GET RESPONSE
-    # =====================================
+    # =====================================================
+    # GENERATE RESPONSE
+    # =====================================================
 
     response = generate_response(
         language,
         intent
     )
 
+    # =====================================================
+    # TERMINAL DEBUG INFORMATION
+    # =====================================================
 
-    print(
-        "Response:",
-        response
-    )
-
-    print("================================")
-
+    print("Detected language:", language)
+    print("Detected intent:", intent)
+    print("Response:", response)
+    print("========================================")
+    print()
 
     return jsonify({
-
-        "response":
-        response,
-
-        "intent":
-        intent,
-
-        "language":
-        language
+        "response": response,
+        "intent": intent,
+        "language": language
     })
 
 
-# =========================================
-# START APPLICATION
-# =========================================
+# =========================================================
+# RUN APPLICATION
+# =========================================================
 
 if __name__ == "__main__":
 
-    app.run(debug=True)
+    app.run(
+        debug=True
+    )

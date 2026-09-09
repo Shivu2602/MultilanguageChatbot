@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Admin Panel - Multi-Language Chatbot</title>
+
+
+    <style>
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f3f6fa;
+            color: #1f2937;
+            min-height: 100vh;
+        }
+
+
+        .admin-container {
+            width: 92%;
+            max-width: 1150px;
+            margin: 35px auto;
+        }
+
+
+        /* ================================================
+           HEADER
+        ================================================= */
+
+        .admin-header {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 30px 34px;
+            margin-bottom: 24px;
+        }
+
+
+        .admin-header h1 {
+            font-size: 30px;
+            color: #172554;
+            margin-bottom: 8px;
+        }
+
+
+        .admin-header p {
+            color: #64748b;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+
+        .admin-status {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 7px 12px;
+            border-radius: 6px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+
+        /* ================================================
+           CARDS
+        ================================================= */
+
+        .admin-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            padding: 28px;
+            margin-bottom: 22px;
+        }
+
+
+        .admin-card h2 {
+            font-size: 20px;
+            color: #172554;
+            margin-bottom: 7px;
+        }
+
+
+        .card-description {
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 22px;
+        }
+
+
+        /* ================================================
+           FORM GRID
+        ================================================= */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #1f2937;
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+        }
+
+
+        .form-group textarea {
+            min-height: 120px;
+            resize: vertical;
+            line-height: 1.5;
+        }
+
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-color: #2563eb;
+        }
+
+
+        /* ================================================
+           COURSE LIST
+        ================================================= */
+
+        .course-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+
+        .course-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 13px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+
+        .course-item input {
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+        }
+
+
+        .course-item label {
+            font-size: 14px;
+            color: #374151;
+            line-height: 1.4;
+            cursor: pointer;
+        }
+
+
+        /* ================================================
+           FACILITY LIST
+        ================================================= */
+
+        .facility-list {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+
+        .facility-item {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            padding: 13px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+
+        .facility-item input {
+            width: 17px;
+            height: 17px;
+            flex-shrink: 0;
+        }
+
+
+        .facility-item label {
+            font-size: 14px;
+            color: #374151;
+            cursor: pointer;
+        }
+
+
+        /* ================================================
+           BUTTON AREA
+        ================================================= */
+
+        .button-section {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 25px;
+        }
+
+
+        .admin-button {
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+
+        .save-button {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+
+        .reset-button {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+
+        .admin-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+
+        /* ================================================
+           MESSAGE
+        ================================================= */
+
+        .status-message {
+            display: none;
+            margin-top: 18px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+
+        .success-message {
+            background: #ecfdf5;
+            color: #166534;
+            border: 1px solid #bbf7d0;
+        }
+
+
+        .error-message {
+            background: #fef2f2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+
+
+        /* ================================================
+           RESPONSIVE DESIGN
+        ================================================= */
+
+        @media (max-width: 800px) {
+
+            .admin-container {
+                width: 94%;
+                margin: 25px auto;
+            }
+
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .form-group.full-width {
+                grid-column: auto;
+            }
+
+
+            .course-list {
+                grid-template-columns: 1fr;
+            }
+
+
+            .facility-list {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+
+        @media (max-width: 500px) {
+
+            .admin-container {
+                width: 96%;
+                margin: 15px auto;
+            }
+
+
+            .admin-header {
+                padding: 22px;
+            }
+
+
+            .admin-header h1 {
+                font-size: 24px;
+            }
+
+
+            .admin-card {
+                padding: 20px;
+            }
+
+
+            .facility-list {
+                grid-template-columns: 1fr;
+            }
+
+
+            .button-section {
+                flex-direction: column;
+            }
+
+
+            .admin-button {
+                width: 100%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+    <div class="admin-container">
+
+        <div class="admin-header">
+
+            <h1>Chatbot Admin Panel</h1>
+
+            <p>
+                Manage the college information used by the
+                Multi-Language Chatbot.
+            </p>
+
+            <div
+                id="adminStatus"
+                class="admin-status">
+
+                Loading college information...
+
+            </div>
+
+        </div>
+        <!-- ================================================
+             COLLEGE INFORMATION
+        ================================================= -->
+
+        <div class="admin-card">
+
+            <h2>College Information</h2>
+
+            <p class="card-description">
+                Update the basic information of the college.
+            </p>
+
+
+            <div class="form-grid">
+
+                <div class="form-group full-width">
+
+                    <label for="collegeName">
+                        College Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="collegeName"
+                        value="Rao Bahadur Y. Mahabaleshwarappa Engineering College">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="location">
+                        Location
+                    </label>
+
+                    <input
+                        type="text"
+                        id="location"
+                        value="Cantonment, Ballari">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="timings">
+                        College Timings
+                    </label>
+
+                    <input
+                        type="text"
+                        id="timings"
+                        value="9:00 AM to 5:00 PM">
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label for="aboutCollege">
+                        About College
+                    </label>
+
+                    <textarea
+                        id="aboutCollege">Rao Bahadur Y. Mahabaleshwarappa Engineering College is an engineering college located in Cantonment, Ballari.</textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             COURSES AND DEPARTMENTS
+        ================================================= -->
+
+        <div class="admin-card">
+
+            <h2>Courses & Departments</h2>
+
+            <p class="card-description">
+                Select the courses and departments available
+                in the college.
+            </p>
+
+
+            <div class="course-list">
+
+                <div class="course-item">
+
+                    <input
+                        type="checkbox"
+                        id="cse"
+                        value="CSE"
+                        checked>
+
+                    <label for="cse">
+                        Computer Science and Engineering (CSE)
+                    </label>
+
+                </div>
+
+
+                <div class="course-item">
+
+                    <input
+                        type="checkbox"
+                        id="ise"
+                        value="ISE"
+                        checked>
+
+                    <label for="ise">
+                        Information Science and Engineering (ISE)
+                    </label>
+
+                </div>
+
+
+                <div class="course-item">
+
+                    <input
+                        type="checkbox"
+                        id="ece"
+                        value="ECE"
+                        checked>
+
+                    <label for="ece">
+                        Electronics and Communication Engineering (ECE)
+                    </label>
+
+                </div>
+
+
+                <div class="course-item">
+
+                    <input
+                        type="checkbox"
+                        id="mechanical"
+                        value="Mechanical"
+                        checked>
+
+                    <label for="mechanical">
+                        Mechanical Engineering
+                    </label>
+
+                </div>
+
+
+                <div class="course-item">
+
+                    <input
+                        type="checkbox"
+                        id="civil"
+                        value="Civil"
+                        checked>
+
+                    <label for="civil">
+                        Civil Engineering
+                    </label>
+
+                </div>
+
+
+                <div class="course-item">
+
+                    <input
+                        type="checkbox"
+                        id="aiml"
+                        value="AI & ML"
+                        checked>
+
+                    <label for="aiml">
+                        Artificial Intelligence and Machine Learning
+                    </label>
+
+                </div>
+
+
+                <div class="course-item">
+
+                    <input
+                        type="checkbox"
+                        id="cyberSecurity"
+                        value="Cyber Security"
+                        checked>
+
+                    <label for="cyberSecurity">
+                        Cyber Security
+                    </label>
+
+                </div>
+
+
+                <div class="course-item">
+
+                    <input
+                        type="checkbox"
+                        id="mba"
+                        value="MBA"
+                        checked>
+
+                    <label for="mba">
+                        Master of Business Administration (MBA)
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             ADMISSION INFORMATION
+        ================================================= -->
+
+        <div class="admin-card">
+
+            <h2>Admission Information</h2>
+
+            <p class="card-description">
+                Manage the admission information displayed
+                by the chatbot.
+            </p>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="admissionMode">
+                        Admission Mode
+                    </label>
+
+                    <select id="admissionMode">
+
+                        <option value="CET and Management">
+                            CET and Management
+                        </option>
+
+                        <option value="CET">
+                            CET
+                        </option>
+
+                        <option value="Management">
+                            Management
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="admissionYear">
+                        Admission Year
+                    </label>
+
+                    <input
+                        type="text"
+                        id="admissionYear"
+                        placeholder="Enter admission year">
+
+                </div>
+
+
+                <div class="form-group full-width">
+
+                    <label for="admissionDetails">
+                        Admission Details
+                    </label>
+
+                    <textarea
+                        id="admissionDetails">Admissions are available through CET and management quota.</textarea>
+
+                </div>
+
+            </div>
+
+        </div>
+        <!-- ================================================
+             COLLEGE FACILITIES
+        ================================================= -->
+
+        <div class="admin-card">
+
+            <h2>College Facilities</h2>
+
+            <p class="card-description">
+                Select the facilities currently available
+                at the college.
+            </p>
+
+
+            <div class="facility-list">
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="library"
+                        value="Library"
+                        checked>
+
+                    <label for="library">
+                        Library
+                    </label>
+
+                </div>
+
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="digitalLibrary"
+                        value="Digital Library"
+                        checked>
+
+                    <label for="digitalLibrary">
+                        Digital Library
+                    </label>
+
+                </div>
+
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="laboratories"
+                        value="Laboratories"
+                        checked>
+
+                    <label for="laboratories">
+                        Laboratories
+                    </label>
+
+                </div>
+
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="hostel"
+                        value="Hostel"
+                        checked>
+
+                    <label for="hostel">
+                        Hostel
+                    </label>
+
+                </div>
+
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="sports"
+                        value="Sports Facilities"
+                        checked>
+
+                    <label for="sports">
+                        Sports Facilities
+                    </label>
+
+                </div>
+
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="computerCenter"
+                        value="Computer Center"
+                        checked>
+
+                    <label for="computerCenter">
+                        Computer Center
+                    </label>
+
+                </div>
+
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="auditorium"
+                        value="Auditorium"
+                        checked>
+
+                    <label for="auditorium">
+                        Auditorium
+                    </label>
+
+                </div>
+
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="internet"
+                        value="Internet Facility"
+                        checked>
+
+                    <label for="internet">
+                        Internet Facility
+                    </label>
+
+                </div>
+
+
+                <div class="facility-item">
+
+                    <input
+                        type="checkbox"
+                        id="placement"
+                        value="Placement Facilities"
+                        checked>
+
+                    <label for="placement">
+                        Placement Facilities
+                    </label>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             CONTACT INFORMATION
+        ================================================= -->
+
+        <div class="admin-card">
+
+            <h2>Contact Information</h2>
+
+            <p class="card-description">
+                Update the official college contact
+                information.
+            </p>
+
+
+            <div class="form-grid">
+
+                <div class="form-group">
+
+                    <label for="phone">
+                        Phone Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="phone"
+                        value="08392-244809">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        value="principalrymec@gmail.com">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="website">
+                        Website
+                    </label>
+
+                    <input
+                        type="text"
+                        id="website"
+                        value="https://rymec.edu.in/">
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="address">
+                        College Address
+                    </label>
+
+                    <input
+                        type="text"
+                        id="address"
+                        value="Cantonment, Ballari - 583104">
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- ================================================
+             ADMIN ACTIONS
+        ================================================= -->
+
+        <div class="admin-card">
+
+            <div class="button-section">
+
+                <button
+                    type="button"
+                    class="admin-button reset-button"
+                    id="resetButton">
+
+                    Reset
+
+                </button>
+
+
+                <button
+                    type="button"
+                    class="admin-button save-button"
+                    id="saveButton">
+
+                    Save Information
+
+                </button>
+
+            </div>
+
+
+            <div
+                id="statusMessage"
+                class="status-message">
+
+            </div>
+
+        </div>
+        <!-- ================================================
+             JAVASCRIPT
+        ================================================= -->
+
+        <script>
+
+            const saveButton =
+                document.getElementById("saveButton");
+
+            const resetButton =
+                document.getElementById("resetButton");
+
+            const statusMessage =
+                document.getElementById("statusMessage");
+
+            const adminStatus =
+                document.getElementById("adminStatus");
+
+
+            // ================================================
+            // SHOW STATUS MESSAGE
+            // ================================================
+
+            function showStatus(
+                message,
+                type
+            ) {
+
+                statusMessage.textContent =
+                    message;
+
+                statusMessage.className =
+                    "status-message " +
+                    type;
+
+                statusMessage.style.display =
+                    "block";
+
+            }
+
+
+            // ================================================
+            // LOAD COLLEGE DATA
+            // ================================================
+
+            async function loadCollegeData() {
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/admin/data"
+                        );
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            "Unable to load college data."
+                        );
+
+                    }
+
+
+                    const data =
+                        await response.json();
+
+
+                    // Basic information
+
+                    document.getElementById(
+                        "collegeName"
+                    ).value =
+                        data.collegeName || "";
+
+
+                    document.getElementById(
+                        "location"
+                    ).value =
+                        data.location || "";
+
+
+                    document.getElementById(
+                        "timings"
+                    ).value =
+                        data.timings || "";
+
+
+                    document.getElementById(
+                        "aboutCollege"
+                    ).value =
+                        data.aboutCollege || "";
+
+
+                    // Admission information
+
+                    document.getElementById(
+                        "admissionMode"
+                    ).value =
+                        data.admissionMode ||
+                        "CET and Management";
+
+
+                    document.getElementById(
+                        "admissionYear"
+                    ).value =
+                        data.admissionYear || "";
+
+
+                    document.getElementById(
+                        "admissionDetails"
+                    ).value =
+                        data.admissionDetails || "";
+
+
+                    // Contact information
+
+                    document.getElementById(
+                        "phone"
+                    ).value =
+                        data.phone || "";
+
+
+                    document.getElementById(
+                        "email"
+                    ).value =
+                        data.email || "";
+
+
+                    document.getElementById(
+                        "website"
+                    ).value =
+                        data.website || "";
+
+
+                    document.getElementById(
+                        "address"
+                    ).value =
+                        data.address || "";
+
+
+                    // Courses
+
+                    const courses =
+                        data.courses || [];
+
+
+                    document
+                        .querySelectorAll(
+                            ".course-item input[type='checkbox']"
+                        )
+                        .forEach(
+                            function(checkbox) {
+
+                                checkbox.checked =
+                                    courses.includes(
+                                        checkbox.value
+                                    );
+
+                            }
+                        );
+
+
+                    // Facilities
+
+                    const facilities =
+                        data.facilities || [];
+
+
+                    document
+                        .querySelectorAll(
+                            ".facility-item input[type='checkbox']"
+                        )
+                        .forEach(
+                            function(checkbox) {
+
+                                checkbox.checked =
+                                    facilities.includes(
+                                        checkbox.value
+                                    );
+
+                            }
+                        );
+
+
+                    adminStatus.textContent =
+                        "College information loaded";
+
+
+                    adminStatus.style.background =
+                        "#ecfdf5";
+
+                    adminStatus.style.color =
+                        "#166534";
+
+                }
+
+
+                catch (error) {
+
+                    console.error(
+                        "Load error:",
+                        error
+                    );
+
+
+                    adminStatus.textContent =
+                        "Unable to load college information";
+
+
+                    adminStatus.style.background =
+                        "#fef2f2";
+
+                    adminStatus.style.color =
+                        "#991b1b";
+
+                }
+
+            }
+
+
+            // ================================================
+            // COLLECT FORM DATA
+            // ================================================
+
+            function collectCollegeData() {
+
+                const collegeData = {
+
+                    collegeName:
+                        document.getElementById(
+                            "collegeName"
+                        ).value.trim(),
+
+                    location:
+                        document.getElementById(
+                            "location"
+                        ).value.trim(),
+
+                    timings:
+                        document.getElementById(
+                            "timings"
+                        ).value.trim(),
+
+                    aboutCollege:
+                        document.getElementById(
+                            "aboutCollege"
+                        ).value.trim(),
+
+                    courses: [],
+
+                    admissionMode:
+                        document.getElementById(
+                            "admissionMode"
+                        ).value,
+
+                    admissionYear:
+                        document.getElementById(
+                            "admissionYear"
+                        ).value.trim(),
+
+                    admissionDetails:
+                        document.getElementById(
+                            "admissionDetails"
+                        ).value.trim(),
+
+                    facilities: [],
+
+                    phone:
+                        document.getElementById(
+                            "phone"
+                        ).value.trim(),
+
+                    email:
+                        document.getElementById(
+                            "email"
+                        ).value.trim(),
+
+                    website:
+                        document.getElementById(
+                            "website"
+                        ).value.trim(),
+
+                    address:
+                        document.getElementById(
+                            "address"
+                        ).value.trim()
+
+                };
+
+
+                // Collect selected courses
+
+                document
+                    .querySelectorAll(
+                        ".course-item input[type='checkbox']"
+                    )
+                    .forEach(
+                        function(checkbox) {
+
+                            if (checkbox.checked) {
+
+                                collegeData.courses.push(
+                                    checkbox.value
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                // Collect selected facilities
+
+                document
+                    .querySelectorAll(
+                        ".facility-item input[type='checkbox']"
+                    )
+                    .forEach(
+                        function(checkbox) {
+
+                            if (checkbox.checked) {
+
+                                collegeData.facilities.push(
+                                    checkbox.value
+                                );
+
+                            }
+
+                        }
+                    );
+
+
+                return collegeData;
+
+            }
+
+
+            // ================================================
+            // SAVE COLLEGE DATA
+            // ================================================
+
+            saveButton.addEventListener(
+                "click",
+                async function() {
+
+                    const collegeData =
+                        collectCollegeData();
+
+
+                    saveButton.disabled =
+                        true;
+
+
+                    saveButton.textContent =
+                        "Saving...";
+
+
+                    try {
+
+                        const response =
+                            await fetch(
+                                "/admin/data",
+                                {
+                                    method: "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body: JSON.stringify(
+                                        collegeData
+                                    )
+                                }
+                            );
+
+
+                        const result =
+                            await response.json();
+
+
+                        if (
+                            response.ok &&
+                            result.success
+                        ) {
+
+                            showStatus(
+                                result.message,
+                                "success-message"
+                            );
+
+                        }
+
+
+                        else {
+
+                            showStatus(
+                                result.message ||
+                                "Unable to save information.",
+                                "error-message"
+                            );
+
+                        }
+
+                    }
+
+
+                    catch (error) {
+
+                        console.error(
+                            "Save error:",
+                            error
+                        );
+
+
+                        showStatus(
+                            "Unable to connect to the Flask server.",
+                            "error-message"
+                        );
+
+                    }
+
+
+                    saveButton.disabled =
+                        false;
+
+
+                    saveButton.textContent =
+                        "Save Information";
+
+                }
+            );
+
+
+            // ================================================
+            // RESET FORM
+            // ================================================
+
+            resetButton.addEventListener(
+                "click",
+                async function() {
+
+                    resetButton.disabled =
+                        true;
+
+
+                    resetButton.textContent =
+                        "Loading...";
+
+
+                    await loadCollegeData();
+
+
+                    resetButton.disabled =
+                        false;
+
+
+                    resetButton.textContent =
+                        "Reset";
+
+
+                    showStatus(
+                        "Form reset to the saved information.",
+                        "success-message"
+                    );
+
+                }
+            );
+
+
+            // ================================================
+            // INITIAL LOAD
+            // ================================================
+
+            loadCollegeData();
+
+        </script>
+
+
+    </div>
+
+</body>
+
+</html>
