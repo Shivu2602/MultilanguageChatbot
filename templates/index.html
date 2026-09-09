@@ -2,297 +2,667 @@
 <html lang="en">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Multi-Language Chatbot</title>
 
+
     <style>
+
+        /* =====================================================
+           BASIC RESET
+        ====================================================== */
+
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
+
+
+        /* =====================================================
+           BODY
+        ====================================================== */
 
         body {
-            margin: 0;
-            min-height: 100vh;
             font-family: Arial, Helvetica, sans-serif;
-            background: #f4f7fb;
-            color: #1f2937;
+            background: #f3f6fa;
+            color: #1e293b;
+            min-height: 100vh;
         }
 
-        .app-container {
-            width: 95%;
-            max-width: 1000px;
-            margin: 30px auto;
+
+        /* =====================================================
+           MAIN CONTAINER
+        ====================================================== */
+
+        .container {
+            width: 92%;
+            max-width: 1150px;
+            margin: 35px auto;
         }
 
-        /* Header */
 
-        .header {
-            background: #ffffff;
-            border-radius: 14px 14px 0 0;
-            padding: 22px 25px;
-            border-bottom: 1px solid #e5e7eb;
+        /* =====================================================
+           HEADER
+        ====================================================== */
+
+        .chatbot-header {
+            text-align: center;
+            margin-bottom: 28px;
         }
 
-        .header h1 {
-            margin: 0;
-            font-size: 28px;
+
+        .header-text h1 {
+            font-size: 34px;
+            font-weight: 700;
+            color: #172554;
+            margin-bottom: 8px;
         }
 
-        .header p {
-            margin: 7px 0 0;
-            color: #6b7280;
+
+        .subtitle {
+            font-size: 16px;
+            color: #64748b;
+            margin-bottom: 10px;
         }
 
-        /* Main Chat */
 
-        .chat-container {
-            background: #ffffff;
-            padding: 20px;
-            border-radius: 0 0 14px 14px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-        }
-
-        /* Language */
-
-        .language-area {
+        .status {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            gap: 10px;
+            justify-content: center;
+            gap: 7px;
+            color: #15803d;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #22c55e;
+            border-radius: 50%;
+        }
+
+
+        /* =====================================================
+           LANGUAGE SECTION
+        ====================================================== */
+
+        .language-section {
+            display: flex;
+            align-items: center;
+            gap: 12px;
             margin-bottom: 15px;
         }
 
-        .language-area label {
-            font-weight: bold;
+
+        .language-section label {
+            font-size: 15px;
+            font-weight: 600;
+            color: #334155;
         }
 
-        #language {
-            padding: 9px 12px;
+
+        #languageSelect {
+            min-width: 140px;
+            padding: 10px 14px;
             border: 1px solid #cbd5e1;
-            border-radius: 7px;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #1e293b;
             font-size: 15px;
-            background: white;
+            outline: none;
             cursor: pointer;
         }
 
-        /* Chat Box */
 
-        #chat-box {
-            height: 400px;
-            overflow-y: auto;
-            padding: 20px;
-            border: 1px solid #dbe2ea;
-            border-radius: 12px;
-            background: #f8fafc;
-            margin-bottom: 15px;
-        }
-
-        .message {
-            margin-bottom: 14px;
-            line-height: 1.6;
-        }
-
-        .message-label {
-            font-weight: bold;
-        }
-
-        /* Input */
-
-        .input-area {
-            display: flex;
-            gap: 10px;
-        }
-
-        #message {
-            flex: 1;
-            min-height: 48px;
-            padding: 13px 15px;
-            font-size: 16px;
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            outline: none;
-        }
-
-        #message:focus {
+        #languageSelect:focus {
             border-color: #2563eb;
         }
 
-        #send-button {
-            min-width: 90px;
-            border: none;
-            border-radius: 8px;
-            padding: 0 20px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            background: #2563eb;
-            color: white;
-        }
 
-        #send-button:hover {
-            background: #1d4ed8;
-        }
+        /* =====================================================
+           CHAT AREA
+        ====================================================== */
 
-        /* Kannada Keyboard */
-
-        #kannada-keyboard {
-            display: none;
-            margin-top: 18px;
-            padding: 18px;
+        .chat-box {
+            height: 420px;
+            overflow-y: auto;
+            padding: 22px;
             background: #ffffff;
-            border: 1px solid #dbe2ea;
-            border-radius: 12px;
+            border: 1px solid #dbe3ec;
+            border-radius: 14px 14px 0 0;
+            box-shadow: 0 3px 15px rgba(15, 23, 42, 0.06);
         }
 
-        #kannada-keyboard h3 {
-            text-align: center;
-            margin: 0 0 18px;
-            font-size: 20px;
-        }
 
-        .keyboard-section {
+        .message {
+            display: flex;
+            width: 100%;
             margin-bottom: 18px;
         }
 
-        .section-title {
-            font-weight: bold;
-            margin-bottom: 9px;
-            color: #374151;
-        }
 
-        .key-row {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-
-        .key {
-            min-width: 46px;
-            min-height: 43px;
-            padding: 8px 10px;
-            border: 1px solid #cbd5e1;
-            border-radius: 6px;
-            background: #f8fafc;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .key:hover {
-            background: #e2e8f0;
-        }
-
-        .common-compounds {
-            max-height: 180px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .keyboard-controls {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .control-button {
-            padding: 10px 17px;
-            border: 1px solid #cbd5e1;
-            border-radius: 7px;
-            background: #f8fafc;
+        .message-content {
+            max-width: 70%;
+            padding: 13px 17px;
+            border-radius: 13px;
             font-size: 15px;
+            line-height: 1.55;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+        }
+
+
+        .user-message {
+            justify-content: flex-end;
+        }
+
+
+        .user-message .message-content {
+            background: #2563eb;
+            color: #ffffff;
+            border-bottom-right-radius: 4px;
+        }
+
+
+        .bot-message {
+            justify-content: flex-start;
+        }
+
+
+        .bot-message .message-content {
+            background: #eef2f7;
+            color: #1e293b;
+            border-bottom-left-radius: 4px;
+        }
+
+
+        /* =====================================================
+           INPUT SECTION
+        ====================================================== */
+
+        .input-section {
+            display: flex;
+            gap: 10px;
+            padding: 17px;
+            background: #ffffff;
+            border: 1px solid #dbe3ec;
+            border-top: none;
+            border-radius: 0 0 14px 14px;
+        }
+
+
+        #messageInput {
+            flex: 1;
+            min-height: 52px;
+            max-height: 150px;
+            resize: vertical;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            background: #ffffff;
+            color: #1e293b;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 15px;
+            outline: none;
+        }
+
+
+        #messageInput::placeholder {
+            color: #94a3b8;
+        }
+
+
+        #messageInput:focus {
+            border-color: #2563eb;
+        }
+
+
+        /* =====================================================
+           MAIN BUTTONS
+        ====================================================== */
+
+        #sendButton,
+        #clearChatButton {
+            min-width: 105px;
+            padding: 0 20px;
+            border: none;
+            border-radius: 9px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
         }
 
-        .control-button:hover {
+
+        #sendButton {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+
+        #clearChatButton {
             background: #e2e8f0;
+            color: #334155;
         }
 
-        /* Status */
 
-        #status {
-            margin-top: 10px;
-            font-size: 13px;
-            color: #6b7280;
+        #sendButton:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
         }
 
-        /* Mobile */
 
-        @media (max-width: 600px) {
+        /* =====================================================
+           TYPING INDICATOR
+        ====================================================== */
 
-            .app-container {
-                width: 100%;
-                margin: 0;
+        .typing {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 16px;
+        }
+
+
+        .typing-content {
+            padding: 10px 15px;
+            background: #eef2f7;
+            color: #64748b;
+            border-radius: 13px;
+        }
+
+
+        .typing-dots span {
+            display: inline-block;
+            margin: 0 2px;
+            animation: blink 1.4s infinite;
+        }
+
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+
+        @keyframes blink {
+
+            0%,
+            80%,
+            100% {
+                opacity: 0.3;
             }
 
-            .header,
-            .chat-container {
-                border-radius: 0;
+            40% {
+                opacity: 1;
             }
 
-            .input-area {
+        }
+
+
+        /* =====================================================
+           QUICK QUESTIONS
+        ====================================================== */
+
+        .quick-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: #ffffff;
+            border: 1px solid #dbe3ec;
+            border-radius: 14px;
+            box-shadow: 0 3px 15px rgba(15, 23, 42, 0.05);
+        }
+
+
+        .quick-section h3 {
+            text-align: center;
+            margin-bottom: 16px;
+            color: #172554;
+            font-size: 19px;
+        }
+
+
+        .quick-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+
+
+        .quick-button {
+            padding: 10px 17px;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            background: #f8fbff;
+            color: #1d4ed8;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           TRANSLATOR
+        ====================================================== */
+
+        .translator {
+            display: none;
+            margin-top: 25px;
+            padding: 25px;
+            background: #ffffff;
+            border: 1px solid #dbe3ec;
+            border-radius: 14px;
+            box-shadow: 0 3px 15px rgba(15, 23, 42, 0.06);
+        }
+
+
+        .translator h2 {
+            text-align: center;
+            margin-bottom: 8px;
+            color: #172554;
+            font-size: 23px;
+        }
+
+
+        .translator-description {
+            max-width: 750px;
+            margin: 0 auto 22px;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+
+        .translator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+
+        .translator-column label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+
+        .translator textarea {
+            width: 100%;
+            min-height: 140px;
+            resize: vertical;
+            padding: 14px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            background: #ffffff;
+            color: #1e293b;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            outline: none;
+        }
+
+
+        .translator textarea:focus {
+            border-color: #2563eb;
+        }
+
+
+        .translator-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+
+        .translator-buttons button {
+            min-width: 100px;
+            padding: 11px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+
+        #translateButton {
+            background: #2563eb;
+            color: #ffffff;
+        }
+
+
+        #copyButton {
+            background: #16a34a;
+            color: #ffffff;
+        }
+
+
+        #clearButton {
+            background: #e2e8f0;
+            color: #334155;
+        }
+
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        /* =====================================================
+           DESKTOP SPACING
+        ====================================================== */
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #172554;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE DESIGN
+        ====================================================== */
+
+        @media (max-width: 800px) {
+
+            .container {
+                width: 94%;
+                margin: 25px auto;
+            }
+
+
+            .header-text h1 {
+                font-size: 28px;
+            }
+
+
+            .chat-box {
+                height: 400px;
+                padding: 16px;
+            }
+
+
+            .message-content {
+                max-width: 85%;
+            }
+
+
+            .input-section {
                 flex-direction: column;
             }
 
-            #send-button {
+
+            #messageInput {
+                width: 100%;
+            }
+
+
+            #sendButton,
+            #clearChatButton {
                 min-height: 45px;
+                width: 100%;
             }
 
-            .language-area {
-                justify-content: flex-start;
+
+            .translator-grid {
+                grid-template-columns: 1fr;
             }
 
-            #chat-box {
-                height: 350px;
-            }
-
-            .key {
-                min-width: 40px;
-            }
         }
+
+
+        @media (max-width: 500px) {
+
+            .container {
+                width: 96%;
+                margin: 15px auto;
+            }
+
+
+            .header-text h1 {
+                font-size: 24px;
+            }
+
+
+            .subtitle {
+                font-size: 14px;
+            }
+
+
+            .language-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+
+            #languageSelect {
+                width: 100%;
+            }
+
+
+            .chat-box {
+                height: 380px;
+            }
+
+
+            .message-content {
+                max-width: 92%;
+                font-size: 14px;
+            }
+
+
+            .quick-section {
+                padding: 16px;
+            }
+
+
+            .quick-buttons {
+                flex-direction: column;
+            }
+
+
+            .quick-button {
+                width: 100%;
+            }
+
+
+            .translator {
+                padding: 18px;
+            }
+
+
+            .translator-buttons {
+                flex-direction: column;
+            }
+
+
+            .translator-buttons button {
+                width: 100%;
+            }
+
+        }
+
     </style>
+
 </head>
 
 
 <body>
 
-<div class="app-container">
 
-    <!-- HEADER -->
+    <!-- =====================================================
+         MAIN CONTAINER
+    ====================================================== -->
 
-    <div class="header">
-
-        <h1>Multi-Language Chatbot</h1>
-
-        <p>
-            Intelligent conversational assistant supporting English and Kannada
-        </p>
-
-    </div>
+    <div class="container">
 
 
-    <!-- CHAT -->
+        <!-- =================================================
+             HEADER
+        ================================================== -->
 
-    <div class="chat-container">
+        <div class="chatbot-header">
+
+            <div class="header-text">
+
+                <h1>
+                    Multi-Language Chatbot
+                </h1>
 
 
-        <!-- LANGUAGE -->
+                <p class="subtitle">
+                    English & Kannada NLP Chatbot
+                </p>
 
-        <div class="language-area">
 
-            <label for="language">
-                Language:
+                <div class="status">
+
+                    <span class="status-dot"></span>
+
+                    Chatbot Online
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             LANGUAGE SELECTION
+        ================================================== -->
+
+        <div class="language-section">
+
+            <label for="languageSelect">
+                Select Language
             </label>
 
-            <select id="language" onchange="changeLanguage()">
+
+            <select id="languageSelect">
 
                 <option value="en">
                     English
                 </option>
 
+
                 <option value="kn">
-                    ಕನ್ನಡ
+                    Kannada
                 </option>
 
             </select>
@@ -300,630 +670,884 @@
         </div>
 
 
-        <!-- CHAT BOX -->
+        <!-- =================================================
+             CHAT BOX
+        ================================================== -->
 
-        <div id="chat-box">
+        <div id="chatBox" class="chat-box">
 
-            <div class="message">
-                <span class="message-label">Bot:</span>
-                Hello! How can I help you?
+            <div class="message bot-message">
+
+                <div class="message-content">
+                    Hello! How can I help you?
+                </div>
+
             </div>
 
         </div>
 
 
-        <!-- INPUT -->
+        <!-- =================================================
+             CHAT INPUT
+        ================================================== -->
 
-        <div class="input-area">
+        <div class="input-section">
 
-            <input
-                type="text"
-                id="message"
-                placeholder="Type your message..."
-                autocomplete="off"
-            >
+            <textarea
+                id="messageInput"
+                placeholder="Type your message in English..."
+                rows="2"></textarea>
 
-            <button
-                id="send-button"
-                onclick="sendMessage()"
-            >
+
+            <button id="sendButton">
                 Send
+            </button>
+
+
+            <button id="clearChatButton">
+                Clear Chat
             </button>
 
         </div>
 
 
-        <div id="status">
-            Press Enter to send your message.
+        <!-- =================================================
+             QUICK QUESTIONS
+        ================================================== -->
+
+        <div class="quick-section">
+
+            <h3>
+                Quick Questions
+            </h3>
+
+
+            <div class="quick-buttons">
+
+                <button
+                    class="quick-button"
+                    data-en="Where is the college?"
+                    data-kn="ಕಾಲೇಜು ಎಲ್ಲಿದೆ?">
+
+                    Where is the college?
+
+                </button>
+
+
+                <button
+                    class="quick-button"
+                    data-en="What courses are available?"
+                    data-kn="ಯಾವ ಕೋರ್ಸ್‌ಗಳು ಲಭ್ಯವಿವೆ?">
+
+                    What courses are available?
+
+                </button>
+
+
+                <button
+                    class="quick-button"
+                    data-en="What are the timings?"
+                    data-kn="ಕಾಲೇಜಿನ ಸಮಯ ಏನು?">
+
+                    What are the timings?
+
+                </button>
+
+
+                <button
+                    class="quick-button"
+                    data-en="What facilities are available?"
+                    data-kn="ಯಾವ ಸೌಲಭ್ಯಗಳು ಲಭ್ಯವಿವೆ?">
+
+                    What facilities are available?
+
+                </button>
+
+
+                <button
+                    class="quick-button"
+                    data-en="Contact details"
+                    data-kn="ಸಂಪರ್ಕ ವಿವರಗಳು">
+
+                    Contact details
+
+                </button>
+
+            </div>
+
         </div>
 
 
-        <!-- KANNADA KEYBOARD -->
+        <!-- =================================================
+             TRANSLATOR
+        ================================================== -->
 
-        <div id="kannada-keyboard">
+        <div id="translator" class="translator">
 
-            <h3>ಕನ್ನಡ Keyboard</h3>
+            <h2>
+                Google Translator
+            </h2>
 
 
-            <!-- VOWELS -->
+            <p class="translator-description">
 
-            <div class="keyboard-section">
+                Type your message in English and translate it
+                into Kannada. Copy the translated text and
+                paste it into the chatbot input before sending.
 
-                <div class="section-title">
-                    ಸ್ವರಗಳು
+            </p>
+
+
+            <div class="translator-grid">
+
+
+                <!-- ENGLISH -->
+
+                <div class="translator-column">
+
+                    <label for="englishText">
+                        English
+                    </label>
+
+
+                    <textarea
+                        id="englishText"
+                        placeholder="Type English text here..."></textarea>
+
                 </div>
 
-                <div class="key-row">
 
-                    <button class="key" onclick="addKannada('ಅ')">ಅ</button>
-                    <button class="key" onclick="addKannada('ಆ')">ಆ</button>
-                    <button class="key" onclick="addKannada('ಇ')">ಇ</button>
-                    <button class="key" onclick="addKannada('ಈ')">ಈ</button>
-                    <button class="key" onclick="addKannada('ಉ')">ಉ</button>
-                    <button class="key" onclick="addKannada('ಊ')">ಊ</button>
-                    <button class="key" onclick="addKannada('ಋ')">ಋ</button>
-                    <button class="key" onclick="addKannada('ಎ')">ಎ</button>
-                    <button class="key" onclick="addKannada('ಏ')">ಏ</button>
-                    <button class="key" onclick="addKannada('ಐ')">ಐ</button>
-                    <button class="key" onclick="addKannada('ಒ')">ಒ</button>
-                    <button class="key" onclick="addKannada('ಓ')">ಓ</button>
-                    <button class="key" onclick="addKannada('ಔ')">ಔ</button>
+                <!-- KANNADA -->
+
+                <div class="translator-column">
+
+                    <label for="kannadaText">
+                        Kannada
+                    </label>
+
+
+                    <textarea
+                        id="kannadaText"
+                        placeholder="Kannada translation will appear here..."
+                        readonly></textarea>
 
                 </div>
+
 
             </div>
 
 
-            <!-- CONSONANTS -->
+            <!-- TRANSLATOR BUTTONS -->
 
-            <div class="keyboard-section">
+            <div class="translator-buttons">
 
-                <div class="section-title">
-                    ವ್ಯಂಜನಗಳು
-                </div>
-
-                <div class="key-row">
-
-                    <button class="key" onclick="addKannada('ಕ')">ಕ</button>
-                    <button class="key" onclick="addKannada('ಖ')">ಖ</button>
-                    <button class="key" onclick="addKannada('ಗ')">ಗ</button>
-                    <button class="key" onclick="addKannada('ಘ')">ಘ</button>
-                    <button class="key" onclick="addKannada('ಙ')">ಙ</button>
-
-                </div>
-
-                <div class="key-row">
-
-                    <button class="key" onclick="addKannada('ಚ')">ಚ</button>
-                    <button class="key" onclick="addKannada('ಛ')">ಛ</button>
-                    <button class="key" onclick="addKannada('ಜ')">ಜ</button>
-                    <button class="key" onclick="addKannada('ಝ')">ಝ</button>
-                    <button class="key" onclick="addKannada('ಞ')">ಞ</button>
-
-                </div>
-
-                <div class="key-row">
-
-                    <button class="key" onclick="addKannada('ಟ')">ಟ</button>
-                    <button class="key" onclick="addKannada('ಠ')">ಠ</button>
-                    <button class="key" onclick="addKannada('ಡ')">ಡ</button>
-                    <button class="key" onclick="addKannada('ಢ')">ಢ</button>
-                    <button class="key" onclick="addKannada('ಣ')">ಣ</button>
-
-                </div>
-
-                <div class="key-row">
-
-                    <button class="key" onclick="addKannada('ತ')">ತ</button>
-                    <button class="key" onclick="addKannada('ಥ')">ಥ</button>
-                    <button class="key" onclick="addKannada('ದ')">ದ</button>
-                    <button class="key" onclick="addKannada('ಧ')">ಧ</button>
-                    <button class="key" onclick="addKannada('ನ')">ನ</button>
-
-                </div>
-
-                <div class="key-row">
-
-                    <button class="key" onclick="addKannada('ಪ')">ಪ</button>
-                    <button class="key" onclick="addKannada('ಫ')">ಫ</button>
-                    <button class="key" onclick="addKannada('ಬ')">ಬ</button>
-                    <button class="key" onclick="addKannada('ಭ')">ಭ</button>
-                    <button class="key" onclick="addKannada('ಮ')">ಮ</button>
-
-                </div>
-
-                <div class="key-row">
-
-                    <button class="key" onclick="addKannada('ಯ')">ಯ</button>
-                    <button class="key" onclick="addKannada('ರ')">ರ</button>
-                    <button class="key" onclick="addKannada('ಲ')">ಲ</button>
-                    <button class="key" onclick="addKannada('ವ')">ವ</button>
-                    <button class="key" onclick="addKannada('ಶ')">ಶ</button>
-                    <button class="key" onclick="addKannada('ಷ')">ಷ</button>
-                    <button class="key" onclick="addKannada('ಸ')">ಸ</button>
-                    <button class="key" onclick="addKannada('ಹ')">ಹ</button>
-
-                </div>
-
-            </div>
-
-
-            <!-- MAATRAS -->
-
-            <div class="keyboard-section">
-
-                <div class="section-title">
-                    ಮಾತ್ರೆಗಳು ಮತ್ತು ಚಿಹ್ನೆಗಳು
-                </div>
-
-                <div class="key-row">
-
-                    <button class="key" onclick="addKannada('ಾ')">ಾ</button>
-                    <button class="key" onclick="addKannada('ಿ')">ಿ</button>
-                    <button class="key" onclick="addKannada('ೀ')">ೀ</button>
-                    <button class="key" onclick="addKannada('ು')">ು</button>
-                    <button class="key" onclick="addKannada('ೂ')">ೂ</button>
-                    <button class="key" onclick="addKannada('ೃ')">ೃ</button>
-                    <button class="key" onclick="addKannada('ೆ')">ೆ</button>
-                    <button class="key" onclick="addKannada('ೇ')">ೇ</button>
-                    <button class="key" onclick="addKannada('ೈ')">ೈ</button>
-                    <button class="key" onclick="addKannada('ೊ')">ೊ</button>
-                    <button class="key" onclick="addKannada('ೋ')">ೋ</button>
-                    <button class="key" onclick="addKannada('ೌ')">ೌ</button>
-
-                </div>
-
-                <div class="key-row">
-
-                    <button class="key" onclick="addKannada('ಂ')">ಂ</button>
-                    <button class="key" onclick="addKannada('ಃ')">ಃ</button>
-
-                    <button
-                        class="key"
-                        onclick="addKannada('್')"
-                        title="Use this to create compound consonants"
-                    >
-                        ್
-                    </button>
-
-                </div>
-
-            </div>
-
-
-            <!-- COMMON OTTaksharagalu -->
-
-            <div class="keyboard-section">
-
-                <div class="section-title">
-                    ಒತ್ತಕ್ಷರಗಳು
-                </div>
-
-                <div class="common-compounds">
-
-                    <div class="key-row">
-
-                        <button class="key" onclick="addKannada('ಕ್ಕ')">ಕ್ಕ</button>
-                        <button class="key" onclick="addKannada('ಕ್ಕಿ')">ಕ್ಕಿ</button>
-                        <button class="key" onclick="addKannada('ಕ್ಕೆ')">ಕ್ಕೆ</button>
-                        <button class="key" onclick="addKannada('ಕ್ಕು')">ಕ್ಕು</button>
-                        <button class="key" onclick="addKannada('ಗ್ಗ')">ಗ್ಗ</button>
-                        <button class="key" onclick="addKannada('ಚ್ಚ')">ಚ್ಚ</button>
-                        <button class="key" onclick="addKannada('ಜ್ಜ')">ಜ್ಜ</button>
-
-                    </div>
-
-                    <div class="key-row">
-
-                        <button class="key" onclick="addKannada('ಟ್ಟ')">ಟ್ಟ</button>
-                        <button class="key" onclick="addKannada('ಡ್ಡ')">ಡ್ಡ</button>
-                        <button class="key" onclick="addKannada('ಣ್ಣ')">ಣ್ಣ</button>
-                        <button class="key" onclick="addKannada('ತ್ತ')">ತ್ತ</button>
-                        <button class="key" onclick="addKannada('ದ್ದ')">ದ್ದ</button>
-                        <button class="key" onclick="addKannada('ನ್ನ')">ನ್ನ</button>
-
-                    </div>
-
-                    <div class="key-row">
-
-                        <button class="key" onclick="addKannada('ಪ್ಪ')">ಪ್ಪ</button>
-                        <button class="key" onclick="addKannada('ಬ್ಬ')">ಬ್ಬ</button>
-                        <button class="key" onclick="addKannada('ಮ್ಮ')">ಮ್ಮ</button>
-                        <button class="key" onclick="addKannada('ಲ್ಲ')">ಲ್ಲ</button>
-                        <button class="key" onclick="addKannada('ಸ್ಸ')">ಸ್ಸ</button>
-
-                    </div>
-
-                    <div class="key-row">
-
-                        <button class="key" onclick="addKannada('ಕ್ಷ')">ಕ್ಷ</button>
-                        <button class="key" onclick="addKannada('ಜ್ಞ')">ಜ್ಞ</button>
-                        <button class="key" onclick="addKannada('ತ್ರ')">ತ್ರ</button>
-                        <button class="key" onclick="addKannada('ದ್ರ')">ದ್ರ</button>
-                        <button class="key" onclick="addKannada('ಪ್ರ')">ಪ್ರ</button>
-                        <button class="key" onclick="addKannada('ಕ್ರ')">ಕ್ರ</button>
-
-                    </div>
-
-                    <div class="key-row">
-
-                        <button class="key" onclick="addKannada('ಗ್ರ')">ಗ್ರ</button>
-                        <button class="key" onclick="addKannada('ಬ್ರ')">ಬ್ರ</button>
-                        <button class="key" onclick="addKannada('ಶ್ರ')">ಶ್ರ</button>
-                        <button class="key" onclick="addKannada('ಸ್ವ')">ಸ್ವ</button>
-                        <button class="key" onclick="addKannada('ಹ್ರ')">ಹ್ರ</button>
-
-                    </div>
-
-                    <div class="key-row">
-
-                        <button class="key" onclick="addKannada('ಕ್ಲ')">ಕ್ಲ</button>
-                        <button class="key" onclick="addKannada('ಗ್ಲ')">ಗ್ಲ</button>
-                        <button class="key" onclick="addKannada('ಪ್ಲ')">ಪ್ಲ</button>
-                        <button class="key" onclick="addKannada('ಬ್ಲ')">ಬ್ಲ</button>
-                        <button class="key" onclick="addKannada('ವ್ರ')">ವ್ರ</button>
-
-                    </div>
-
-                </div>
-
-            </div>
-
-        
-
-            <!-- CONTROLS -->
-
-            <div class="keyboard-controls">
-
-                <button
-                    class="control-button"
-                    onclick="addKannada(' ')"
-                >
-                    Space
+                <button id="translateButton">
+                    Translate
                 </button>
 
-                <button
-                    class="control-button"
-                    onclick="backspace()"
-                >
-                    ⌫ Backspace
+
+                <button id="copyButton">
+                    Copy
                 </button>
 
-                <button
-                    class="control-button"
-                    onclick="clearMessage()"
-                >
+
+                <button id="clearButton">
                     Clear
                 </button>
 
             </div>
 
         </div>
+        <!-- =================================================
+             JAVASCRIPT
+        ================================================== -->
 
-    </div>
+        <script>
 
-</div>
 
+            // =================================================
+            // GET HTML ELEMENTS
+            // =================================================
 
-<script>
+            const languageSelect =
+                document.getElementById("languageSelect");
 
-    /*
-     * Change Language
-     */
 
-    function changeLanguage() {
+            const chatBox =
+                document.getElementById("chatBox");
 
-        const language =
-            document.getElementById("language").value;
 
-        const keyboard =
-            document.getElementById("kannada-keyboard");
+            const messageInput =
+                document.getElementById("messageInput");
 
-        const message =
-            document.getElementById("message");
 
-        const status =
-            document.getElementById("status");
+            const sendButton =
+                document.getElementById("sendButton");
 
 
-        if (language === "kn") {
+            const clearChatButton =
+                document.getElementById("clearChatButton");
 
-            keyboard.style.display = "block";
 
-            message.placeholder =
-                "ಕನ್ನಡದಲ್ಲಿ ಸಂದೇಶವನ್ನು ನಮೂದಿಸಿ...";
+            const translator =
+                document.getElementById("translator");
 
-            status.textContent =
-                "ಕನ್ನಡ keyboard ಬಳಸಿ ಅಥವಾ Enter ಒತ್ತಿ ಸಂದೇಶ ಕಳುಹಿಸಿ.";
 
-        } else {
+            const englishText =
+                document.getElementById("englishText");
 
-            keyboard.style.display = "none";
 
-            message.placeholder =
-                "Type your message...";
+            const kannadaText =
+                document.getElementById("kannadaText");
 
-            status.textContent =
-                "Press Enter to send your message.";
 
-        }
+            const translateButton =
+                document.getElementById("translateButton");
 
-        message.focus();
-    }
 
+            const copyButton =
+                document.getElementById("copyButton");
 
-    /*
-     * Add Kannada Character
-     */
 
-    function addKannada(character) {
+            const clearButton =
+                document.getElementById("clearButton");
 
-        const message =
-            document.getElementById("message");
 
-        message.value += character;
+            const quickButtons =
+                document.querySelectorAll(".quick-button");
 
-        message.focus();
-    }
 
+            // =================================================
+            // LANGUAGE CHANGE
+            // =================================================
 
-    /*
-     * Backspace
-     */
+            languageSelect.addEventListener(
+                "change",
+                changeLanguage
+            );
 
-    function backspace() {
 
-        const message =
-            document.getElementById("message");
+            function changeLanguage() {
 
-        message.value =
-            message.value.slice(0, -1);
+                const selectedLanguage =
+                    languageSelect.value;
 
-        message.focus();
-    }
 
+                if (selectedLanguage === "kn") {
 
-    /*
-     * Clear Input
-     */
+                    translator.style.display =
+                        "block";
 
-    function clearMessage() {
 
-        const message =
-            document.getElementById("message");
+                    messageInput.placeholder =
+                        "ಕನ್ನಡದಲ್ಲಿ ನಿಮ್ಮ ಸಂದೇಶವನ್ನು ಟೈಪ್ ಮಾಡಿ...";
 
-        message.value = "";
+                }
 
-        message.focus();
-    }
 
+                else {
 
-    /*
-     * Send Message
-     */
+                    translator.style.display =
+                        "none";
 
-    async function sendMessage() {
 
-        const messageInput =
-            document.getElementById("message");
+                    messageInput.placeholder =
+                        "Type your message in English...";
 
-        const languageSelect =
-            document.getElementById("language");
+                }
 
-        const chatBox =
-            document.getElementById("chat-box");
 
+                updateQuickQuestions();
 
-        const message =
-            messageInput.value.trim();
+            }
 
-        const language =
-            languageSelect.value;
 
+            // =================================================
+            // UPDATE QUICK QUESTIONS
+            // =================================================
 
-        if (message === "") {
+            function updateQuickQuestions() {
 
-            messageInput.focus();
+                const selectedLanguage =
+                    languageSelect.value;
 
-            return;
-        }
 
+                quickButtons.forEach(
+                    function(button) {
 
-        /*
-         * Display User Message
-         */
+                        const question =
+                            selectedLanguage === "kn"
+                                ? button.getAttribute("data-kn")
+                                : button.getAttribute("data-en");
 
-        const userMessage =
-            document.createElement("div");
 
-        userMessage.className =
-            "message";
+                        button.textContent =
+                            question;
 
-        const userLabel =
-            document.createElement("span");
-
-        userLabel.className =
-            "message-label";
-
-        userLabel.textContent =
-            "You: ";
-
-        userMessage.appendChild(userLabel);
-
-        userMessage.appendChild(
-            document.createTextNode(message)
-        );
-
-        chatBox.appendChild(userMessage);
-
-
-        chatBox.scrollTop =
-            chatBox.scrollHeight;
-
-
-        /*
-         * Clear Input
-         */
-
-        messageInput.value = "";
-
-
-        try {
-
-            /*
-             * Send message + selected language
-             * to Flask backend
-             */
-
-            const response =
-                await fetch("/chat", {
-
-                    method: "POST",
-
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-
-                    body: JSON.stringify({
-
-                        message: message,
-
-                        language: language
-
-                    })
-
-                });
-
-
-            if (!response.ok) {
-
-                throw new Error(
-                    "Server returned an error"
+                    }
                 );
 
             }
 
 
-            const data =
-                await response.json();
+            // =================================================
+            // ADD MESSAGE
+            // =================================================
+
+            function addMessage(
+                message,
+                sender
+            ) {
+
+                const messageDiv =
+                    document.createElement("div");
 
 
-            /*
-             * Display Bot Response
-             */
-
-            const botMessage =
-                document.createElement("div");
-
-            botMessage.className =
-                "message";
+                messageDiv.classList.add(
+                    "message"
+                );
 
 
-            const botLabel =
-                document.createElement("span");
-
-            botLabel.className =
-                "message-label";
-
-            botLabel.textContent =
-                "Bot: ";
+                const contentDiv =
+                    document.createElement("div");
 
 
-            botMessage.appendChild(botLabel);
-
-            botMessage.appendChild(
-                document.createTextNode(
-                    data.response
-                )
-            );
+                contentDiv.classList.add(
+                    "message-content"
+                );
 
 
-            chatBox.appendChild(
-                botMessage
-            );
+                if (sender === "user") {
+
+                    messageDiv.classList.add(
+                        "user-message"
+                    );
+
+                }
 
 
-            chatBox.scrollTop =
-                chatBox.scrollHeight;
+                else {
 
-        }
+                    messageDiv.classList.add(
+                        "bot-message"
+                    );
 
-        catch (error) {
-
-            console.error(
-                "Chat error:",
-                error
-            );
+                }
 
 
-            const errorMessage =
-                document.createElement("div");
-
-            errorMessage.className =
-                "message";
+                contentDiv.textContent =
+                    message;
 
 
-            const errorLabel =
-                document.createElement("span");
-
-            errorLabel.className =
-                "message-label";
-
-            errorLabel.textContent =
-                "Bot: ";
+                messageDiv.appendChild(
+                    contentDiv
+                );
 
 
-            errorMessage.appendChild(
-                errorLabel
-            );
-
-            errorMessage.appendChild(
-                document.createTextNode(
-                    "Unable to connect to the chatbot server."
-                )
-            );
+                chatBox.appendChild(
+                    messageDiv
+                );
 
 
-            chatBox.appendChild(
-                errorMessage
-            );
+                chatBox.scrollTop =
+                    chatBox.scrollHeight;
+
+            }
 
 
-            chatBox.scrollTop =
-                chatBox.scrollHeight;
-        }
+            // =================================================
+            // SHOW TYPING INDICATOR
+            // =================================================
+
+            function showTypingIndicator() {
+
+                const typingDiv =
+                    document.createElement("div");
 
 
-        messageInput.focus();
-    }
+                typingDiv.classList.add(
+                    "typing"
+                );
 
 
-    /*
-     * ENTER = SEND
-     *
-     * SHIFT + ENTER = do not send
-     */
+                typingDiv.id =
+                    "typingIndicator";
 
-    document
-        .getElementById("message")
-        .addEventListener(
-            "keydown",
-            function(event) {
 
-                if (
-                    event.key === "Enter" &&
-                    !event.shiftKey
-                ) {
+                typingDiv.innerHTML = `
+                    <div class="typing-content">
+                        <div class="typing-dots">
+                            <span>●</span>
+                            <span>●</span>
+                            <span>●</span>
+                        </div>
+                    </div>
+                `;
 
-                    event.preventDefault();
 
-                    sendMessage();
+                chatBox.appendChild(
+                    typingDiv
+                );
+
+
+                chatBox.scrollTop =
+                    chatBox.scrollHeight;
+
+            }
+
+
+            // =================================================
+            // HIDE TYPING INDICATOR
+            // =================================================
+
+            function hideTypingIndicator() {
+
+                const typingIndicator =
+                    document.getElementById(
+                        "typingIndicator"
+                    );
+
+
+                if (typingIndicator) {
+
+                    typingIndicator.remove();
+
                 }
 
             }
-        );
 
-</script>
+
+            // =================================================
+            // SEND MESSAGE
+            // =================================================
+
+            async function sendMessage() {
+
+                const message =
+                    messageInput.value.trim();
+
+
+                if (!message) {
+
+                    return;
+
+                }
+
+
+                addMessage(
+                    message,
+                    "user"
+                );
+
+
+                messageInput.value =
+                    "";
+
+
+                sendButton.disabled =
+                    true;
+
+
+                showTypingIndicator();
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/chat",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+                                    message: message
+                                })
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    hideTypingIndicator();
+
+
+                    if (response.ok) {
+
+                        addMessage(
+                            data.response,
+                            "bot"
+                        );
+
+                    }
+
+
+                    else {
+
+                        addMessage(
+                            "Sorry, something went wrong. Please try again.",
+                            "bot"
+                        );
+
+                    }
+
+                }
+
+
+                catch (error) {
+
+                    console.error(
+                        "Chat error:",
+                        error
+                    );
+
+
+                    hideTypingIndicator();
+
+
+                    addMessage(
+                        "Unable to connect to the chatbot server.",
+                        "bot"
+                    );
+
+                }
+
+
+                sendButton.disabled =
+                    false;
+
+
+                messageInput.focus();
+
+            }
+
+
+            // =================================================
+            // SEND BUTTON
+            // =================================================
+
+            sendButton.addEventListener(
+                "click",
+                sendMessage
+            );
+
+
+            // =================================================
+            // ENTER KEY
+            // =================================================
+
+            messageInput.addEventListener(
+                "keydown",
+                function(event) {
+
+                    if (
+                        event.key === "Enter" &&
+                        !event.shiftKey
+                    ) {
+
+                        event.preventDefault();
+
+                        sendMessage();
+
+                    }
+
+                }
+            );
+
+
+            // =================================================
+            // CLEAR CHAT
+            // =================================================
+
+            clearChatButton.addEventListener(
+                "click",
+                function() {
+
+                    chatBox.innerHTML = `
+                        <div class="message bot-message">
+                            <div class="message-content">
+                                Hello! How can I help you?
+                            </div>
+                        </div>
+                    `;
+
+
+                    messageInput.value =
+                        "";
+
+
+                    messageInput.focus();
+
+                }
+            );
+
+
+            // =================================================
+            // QUICK QUESTION BUTTONS
+            // =================================================
+
+            quickButtons.forEach(
+                function(button) {
+
+                    button.addEventListener(
+                        "click",
+                        function() {
+
+                            const selectedLanguage =
+                                languageSelect.value;
+
+
+                            const question =
+                                selectedLanguage === "kn"
+                                    ? button.getAttribute("data-kn")
+                                    : button.getAttribute("data-en");
+
+
+                            messageInput.value =
+                                question;
+
+
+                            messageInput.focus();
+
+                        }
+                    );
+
+                }
+            );
+            // =================================================
+            // TRANSLATOR
+            // =================================================
+
+            translateButton.addEventListener(
+                "click",
+                translateText
+            );
+
+
+            async function translateText() {
+
+                const text =
+                    englishText.value.trim();
+
+
+                if (!text) {
+
+                    alert(
+                        "Please enter English text to translate."
+                    );
+
+                    return;
+
+                }
+
+
+                translateButton.disabled =
+                    true;
+
+
+                translateButton.textContent =
+                    "Translating...";
+
+
+                kannadaText.value =
+                    "Translating...";
+
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/translate",
+                            {
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body: JSON.stringify({
+                                    text: text,
+                                    target: "kn"
+                                })
+                            }
+                        );
+
+
+                    const data =
+                        await response.json();
+
+
+                    if (response.ok) {
+
+                        kannadaText.value =
+                            data.translation;
+
+                    }
+
+
+                    else {
+
+                        kannadaText.value =
+                            data.error ||
+                            "Unable to translate.";
+
+                        alert(
+                            data.error ||
+                            "Unable to translate."
+                        );
+
+                    }
+
+                }
+
+
+                catch (error) {
+
+                    console.error(
+                        "Translation error:",
+                        error
+                    );
+
+
+                    kannadaText.value =
+                        "Unable to connect to translation service.";
+
+
+                    alert(
+                        "Unable to translate. Please try again."
+                    );
+
+                }
+
+
+                translateButton.disabled =
+                    false;
+
+
+                translateButton.textContent =
+                    "Translate";
+
+            }
+
+
+            // =================================================
+            // COPY TRANSLATION
+            // =================================================
+
+            copyButton.addEventListener(
+                "click",
+                async function() {
+
+                    const translatedText =
+                        kannadaText.value.trim();
+
+
+                    if (!translatedText) {
+
+                        alert(
+                            "There is no translated text to copy."
+                        );
+
+                        return;
+
+                    }
+
+
+                    try {
+
+                        await navigator.clipboard.writeText(
+                            translatedText
+                        );
+
+
+                        const originalText =
+                            copyButton.textContent;
+
+
+                        copyButton.textContent =
+                            "Copied";
+
+
+                        setTimeout(
+                            function() {
+
+                                copyButton.textContent =
+                                    originalText;
+
+                            },
+                            1500
+                        );
+
+                    }
+
+
+                    catch (error) {
+
+                        console.error(
+                            "Copy error:",
+                            error
+                        );
+
+
+                        kannadaText.select();
+
+
+                        document.execCommand(
+                            "copy"
+                        );
+
+
+                        alert(
+                            "Kannada translation copied."
+                        );
+
+                    }
+
+                }
+            );
+
+
+            // =================================================
+            // CLEAR TRANSLATOR
+            // =================================================
+
+            clearButton.addEventListener(
+                "click",
+                function() {
+
+                    englishText.value =
+                        "";
+
+
+                    kannadaText.value =
+                        "";
+
+
+                    englishText.focus();
+
+                }
+            );
+
+
+            // =================================================
+            // INITIAL PAGE SETUP
+            // =================================================
+
+            changeLanguage();
+
+
+        </script>
+
+
+    </div>
+
 
 </body>
 

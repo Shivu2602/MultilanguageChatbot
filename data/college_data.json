@@ -1,0 +1,34 @@
+{
+    "collegeName": "Rao Bahadur Y. Mahabaleshwarappa Engineering College",
+    "location": "Cantonment, Ballari-583104",
+    "timings": "9:00 AM to 4:00 PM",
+    "aboutCollege": "Rao Bahadur Y. Mahabaleshwarappa Engineering College is an engineering college located in Cantonment, Ballari.",
+    "courses": [
+        "CSE",
+        "ISE",
+        "ECE",
+        "Mechanical",
+        "Civil",
+        "AI & ML",
+        "Cyber Security",
+        "MBA"
+    ],
+    "admissionMode": "CET and Management",
+    "admissionYear": "",
+    "admissionDetails": "Admissions are available through CET and management quota.",
+    "facilities": [
+        "Library",
+        "Digital Library",
+        "Laboratories",
+        "Hostel",
+        "Sports Facilities",
+        "Computer Center",
+        "Auditorium",
+        "Internet Facility",
+        "Placement Facilities"
+    ],
+    "phone": "08392-244809",
+    "email": "principalrymec@gmail.com",
+    "website": "https://rymec.edu.in/",
+    "address": "Cantonment, Ballari - 583104"
+}

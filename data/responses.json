@@ -1,785 +1,259 @@
-from flask import Flask, render_template, request, jsonify, session
-import json
-import random
-import re
-from difflib import SequenceMatcher
-from deep_translator import GoogleTranslator
-
-app = Flask(__name__)
-app.secret_key = "multilanguage_chatbot_secret_key"
-
-
-# --------------------------------------------------
-# LOAD RESPONSES
-# --------------------------------------------------
-
-with open("data/responses.json", "r", encoding="utf-8") as file:
-    responses = json.load(file)
-
-
-# --------------------------------------------------
-# ENGLISH PATTERNS
-# --------------------------------------------------
-
-patterns = {
+{
+  "en": {
     "greeting": [
-        r"\bhello\b",
-        r"\bhi\b",
-        r"\bhey\b",
-        r"\bgood morning\b",
-        r"\bgood afternoon\b",
-        r"\bgood evening\b"
+      "Hello! 👋 How can I help you?",                                                                                                                                                        
+      "Hi! Welcome to the RYMEC chatbot. How can I assist you?",
+      "Hey! 😊 What would you like to know?",
+      "Hello! You can ask me about RYMEC, courses, admissions, facilities and more.",
+      "Hi there! How can I help you today?",
+      "Good morning! How can I assist you?",
+      "Good afternoon! What information do you need?",
+      "Good evening! How can I help you?"
     ],
 
     "thanks": [
-        r"\bthank you\b",
-        r"\bthanks\b",
-        r"\bthankyou\b",
-        r"\bgrateful\b",
-        r"\bappreciate\b"
+      "You're welcome! 😊",
+      "My pleasure! Happy to help.",
+      "You're most welcome!",
+      "Glad I could help!",
+      "Anytime! Feel free to ask another question.",
+      "No problem! 😊",
+      "Happy to assist you.",
+      "You're welcome. Let me know if you need anything else."
     ],
 
     "goodbye": [
-        r"\bbye\b",
-        r"\bgoodbye\b",
-        r"\bsee you\b",
-        r"\bsee ya\b",
-        r"\btalk to you later\b"
+      "Goodbye! 👋 Have a great day!",
+      "Bye! Take care and have a nice day.",
+      "See you again! 😊",
+      "Goodbye! Feel free to come back anytime.",
+      "Bye! All the best.",
+      "See you later!",
+      "Take care! 👋",
+      "Have a wonderful day!"
     ],
 
     "help": [
-        r"\bhelp\b",
-        r"\bassist\b",
-        r"\bsupport\b",
-        r"\bwhat can you do\b",
-        r"\bhow can you help\b"
-    ],
-
-    "college_location": [
-        r"\bwhere is the college\b",
-        r"\bwhere is rymec\b",
-        r"\bcollege location\b",
-        r"\bcollege address\b",
-        r"\bwhere.*college\b",
-        r"\bwhere.*rymec\b",
-        r"\blocation.*college\b",
-        r"\baddress.*college\b"
-    ],
-
-    "courses": [
-        r"\bwhat courses\b",
-        r"\bwhich courses\b",
-        r"\bcourses.*college\b",
-        r"\bcourses.*offered\b",
-        r"\bwhat branches\b",
-        r"\bwhich branches\b",
-        r"\bbranches.*college\b",
-        r"\bwhat can i study\b",
-        r"\bprograms.*college\b",
-        r"\bengineering courses\b"
-    ],
-
-    "timings": [
-        r"\bcollege timing\b",
-        r"\bcollege timings\b",
-        r"\bcollege time\b",
-        r"\bcollege hours\b",
-        r"\bwhat time.*college\b",
-        r"\bwhen.*college.*open\b",
-        r"\bwhen.*college.*close\b",
-        r"\bopening time\b",
-        r"\bclosing time\b"
-    ],
-
-    "admission": [
-        r"\badmission\b",
-        r"\badmissions\b",
-        r"\badmission process\b",
-        r"\bhow.*admission\b",
-        r"\bhow.*join\b",
-        r"\bhow.*apply\b",
-        r"\bhow.*get admission\b",
-        r"\bcet.*admission\b",
-        r"\bmanagement.*admission\b"
-    ],
-
-    "departments": [
-        r"\bdepartments\b",
-        r"\bdepartment\b",
-        r"\bwhich departments\b",
-        r"\bwhat departments\b",
-        r"\bdepartments.*college\b",
-        r"\bcollege.*departments\b"
-    ],
-
-    "facilities": [
-        r"\bfacilities\b",
-        r"\bfacility\b",
-        r"\bcollege facilities\b",
-        r"\bwhat facilities\b",
-        r"\bhostel\b",
-        r"\blibrary\b",
-        r"\blab\b",
-        r"\blabs\b",
-        r"\bsports\b",
-        r"\bworkshop\b",
-        r"\binternet\b"
-    ],
-
-    "contact": [
-        r"\bcontact\b",
-        r"\bcontact number\b",
-        r"\bphone number\b",
-        r"\btelephone\b",
-        r"\bemail\b",
-        r"\bcollege number\b",
-        r"\bhow.*contact\b",
-        r"\bhow.*call\b"
+      "I can provide information about RYM Engineering College, Ballari.",
+      "You can ask me about the college, location, courses, timings, admissions, departments, facilities and contact details.",
+      "I can help you find basic information about RYMEC.",
+      "Try asking questions such as 'Where is RYMEC?', 'What courses are offered?' or 'What are the college timings?'",
+      "I can answer questions related to RYMEC in English and Kannada.",
+      "Ask me about admissions, courses, facilities, departments or contact information.",
+      "How can I help? Just type your question."
     ],
 
     "college": [
-        r"\bcollege\b",
-        r"\brymec\b",
-        r"\babout.*college\b",
-        r"\babout.*rymec\b",
-        r"\btell me about.*college\b",
-        r"\binformation.*college\b"
+      "RYM Engineering College is located in Cantonment, Ballari.",
+      "RYM Engineering College, Ballari provides engineering and management education with different academic departments and facilities.",
+      "RYMEC is an engineering college located in Cantonment, Ballari, Karnataka.",
+      "The college provides various courses along with facilities such as laboratories, library, hostel and sports facilities.",
+      "RYM Engineering College offers programs in engineering and management.",
+      "You can ask me about RYMEC's location, courses, admissions, departments, facilities and contact details."
+    ],
+
+    "college_location": [
+      "RYM Engineering College is located at Cantonment, Ballari, Karnataka - 583104.",
+      "The college is located in Cantonment, Ballari.",
+      "RYMEC is situated in Ballari, Karnataka.",
+      "The address is Cantonment, Ballari - 583104.",
+      "RYM Engineering College is in the Cantonment area of Ballari.",
+      "RYMEC is located in Ballari, Karnataka."
+    ],
+
+    "courses": [
+      "RYMEC offers courses in Computer Science and Engineering, Information Science and Engineering, Electronics and Communication Engineering, Mechanical Engineering, Civil Engineering, Computer Science and Engineering (AI & ML), and MBA.",
+      "The college offers various engineering and management programs.",
+      "You can study CSE, ISE, ECE, Mechanical Engineering, Civil Engineering, CSE (AI & ML) and MBA at RYMEC.",
+      "RYM Engineering College provides different undergraduate engineering programs along with MBA.",
+      "The available programs include CSE, ISE, ECE, Mechanical, Civil, CSE (AI & ML) and MBA.",
+      "If you want information about a particular branch, ask me about that department."
+    ],
+
+    "timings": [
+      "The general college timing is from 9:00 AM to 5:00 PM.",
+      "RYMEC's college hours are generally 9:00 AM to 5:00 PM.",
+      "The college operates from 9:00 AM to 5:00 PM.",
+      "College timings are 9:00 AM to 5:00 PM.",
+      "The regular college timing is 9:00 AM to 5:00 PM.",
+      "RYMEC generally follows a 9:00 AM to 5:00 PM schedule."
+    ],
+
+    "admission": [
+      "Admissions to RYMEC are available through CET and management quota.",
+      "Students can seek admission through the CET route or management admission.",
+      "RYMEC offers admission through CET as well as management quota.",
+      "For admission, students can apply through the applicable CET process or contact the college for management admission details.",
+      "The college provides both CET-based and management admission options.",
+      "You can contact the college for the latest admission requirements and procedures.",
+      "For detailed admission information, please check the official college information or contact the college."
+    ],
+
+    "departments": [
+      "The college has departments including CSE, ISE, ECE, Mechanical Engineering, Civil Engineering, CSE (AI & ML) and MBA.",
+      "RYMEC has several engineering and management departments.",
+      "The major departments include Computer Science and Engineering, Information Science and Engineering, Electronics and Communication Engineering, Mechanical Engineering, Civil Engineering, CSE (AI & ML) and MBA.",
+      "You can ask me about a specific department for more information.",
+      "RYM Engineering College offers multiple engineering disciplines along with management studies.",
+      "The college has departments covering computer science, information science, electronics, mechanical, civil, AI & ML and management."
+    ],
+
+    "facilities": [
+      "RYMEC provides facilities such as a library, laboratories, hostel, sports facilities, workshops and internet facilities.",
+      "The college has a central library, digital library, laboratories and computer facilities.",
+      "Students can access facilities including hostels, sports facilities, laboratories and library services.",
+      "RYMEC provides academic and campus facilities such as workshops, computer facilities, auditorium and seminar halls.",
+      "The college provides hostel facilities along with library, laboratory and sports facilities.",
+      "RYMEC has various infrastructure and student-support facilities."
+    ],
+
+    "contact": [
+      "The official RYMEC contact number is 08392-244809.",
+      "You can contact RYM Engineering College at 08392-244809.",
+      "The college's official contact information can be obtained from the RYMEC website.",
+      "For admission or other official enquiries, you can contact the college directly.",
+      "RYMEC is located at Cantonment, Ballari - 583104. The official contact number is 08392-244809.",
+      "For the latest contact details, please refer to the official RYMEC website."
+    ],
+
+    "default": [
+      "I'm not sure I understood that. Could you please ask your question differently?",
+      "I couldn't identify the topic. Try asking about RYMEC, courses, admissions, facilities or contact details.",
+      "Could you rephrase your question? I can help with information about RYM Engineering College.",
+      "I'm still learning to understand different questions. Please try a simpler version.",
+      "You can ask me about the college location, courses, timings, admissions, departments, facilities or contact details.",
+      "Sorry, I couldn't find a suitable answer. Please try asking your question in another way.",
+      "I can help with RYMEC-related information. What would you like to know?",
+      "Please try asking a question about RYM Engineering College."
     ]
-}
+  },
 
-
-# --------------------------------------------------
-# KANNADA PATTERNS
-# --------------------------------------------------
-
-kannada_patterns = {
+  "kn": {
     "greeting": [
-        "ನಮಸ್ಕಾರ",
-        "ಹಾಯ್",
-        "ಹಲೋ",
-        "ಶುಭೋದಯ",
-        "ಶುಭ ಮಧ್ಯಾಹ್ನ",
-        "ಶುಭ ಸಂಜೆ"
+      "ನಮಸ್ಕಾರ! 👋 ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?",
+      "ಹಾಯ್! RYMEC chatbot ಗೆ ಸ್ವಾಗತ. ನಿಮಗೆ ಯಾವ ಮಾಹಿತಿ ಬೇಕು?",
+      "ಹಲೋ! 😊 ನೀವು ಏನು ತಿಳಿದುಕೊಳ್ಳಲು ಬಯಸುತ್ತೀರಿ?",
+      "ನಮಸ್ಕಾರ! RYMEC, ಕೋರ್ಸ್‌ಗಳು, ಪ್ರವೇಶ, ಸೌಲಭ್ಯಗಳು ಮತ್ತು ಇತರ ಮಾಹಿತಿಯನ್ನು ಕೇಳಬಹುದು.",
+      "ಹಾಯ್! ಇಂದು ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?",
+      "ಶುಭೋದಯ! ನಿಮಗೆ ಯಾವ ಮಾಹಿತಿ ಬೇಕು?",
+      "ಶುಭ ಮಧ್ಯಾಹ್ನ! ನಾನು ನಿಮಗೆ ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ?",
+      "ಶುಭ ಸಂಜೆ! ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಕೇಳಿ."
     ],
 
     "thanks": [
-        "ಧನ್ಯವಾದ",
-        "ಧನ್ಯವಾದಗಳು",
-        "ತುಂಬಾ ಧನ್ಯವಾದ"
+      "ಸ್ವಾಗತ! 😊",
+      "ಪರವಾಗಿಲ್ಲ! ಸಹಾಯ ಮಾಡಲು ಸಂತೋಷವಾಗಿದೆ.",
+      "ತುಂಬಾ ಧನ್ಯವಾದಗಳು! ನಿಮಗೆ ಸಹಾಯ ಮಾಡಲು ಸಂತೋಷವಾಗಿದೆ.",
+      "ನಿಮಗೆ ಸಹಾಯ ಮಾಡಲು ಸಂತೋಷವಾಗಿದೆ!",
+      "ಯಾವಾಗ ಬೇಕಾದರೂ ಕೇಳಿ. 😊",
+      "ಪರವಾಗಿಲ್ಲ! ಇನ್ನೇನಾದರೂ ಬೇಕಿದ್ದರೆ ಕೇಳಿ.",
+      "ಸಂತೋಷದಿಂದ ಸಹಾಯ ಮಾಡುತ್ತೇನೆ.",
+      "ನಿಮಗೆ ಸ್ವಾಗತ. ಮತ್ತಷ್ಟು ಪ್ರಶ್ನೆಗಳಿದ್ದರೆ ಕೇಳಿ."
     ],
 
     "goodbye": [
-        "ಬೈ",
-        "ವಿದಾಯ",
-        "ಮತ್ತೆ ಸಿಗೋಣ"
+      "ವಿದಾಯ! 👋 ನಿಮ್ಮ ದಿನ ಉತ್ತಮವಾಗಿರಲಿ!",
+      "ಬೈ! ಚೆನ್ನಾಗಿರಿ.",
+      "ಮತ್ತೆ ಸಿಗೋಣ! 😊",
+      "ವಿದಾಯ! ಮತ್ತೆ ಯಾವಾಗ ಬೇಕಾದರೂ ಬನ್ನಿ.",
+      "ಬೈ! ನಿಮಗೆ ಶುಭವಾಗಲಿ.",
+      "ಮತ್ತೆ ಭೇಟಿಯಾಗೋಣ!",
+      "ಜಾಗ್ರತೆ ವಹಿಸಿ! 👋",
+      "ನಿಮ್ಮ ದಿನ ಶುಭವಾಗಿರಲಿ!"
     ],
 
     "help": [
-        "ಸಹಾಯ",
-        "ಸಹಾಯ ಮಾಡುತ್ತೀರಾ",
-        "ನೀವು ಏನು ಮಾಡಬಹುದು",
-        "ಏನು ಸಹಾಯ"
-    ],
-
-    "college_location": [
-        "ಕಾಲೇಜು ಎಲ್ಲಿದೆ",
-        "ಕಾಲೇಜಿನ ಸ್ಥಳ",
-        "ಕಾಲೇಜಿನ ವಿಳಾಸ",
-        "ಕಾಲೇಜು ವಿಳಾಸ",
-        "ಎಲ್ಲಿ ಇದೆ",
-        "ಯಾವ ಸ್ಥಳದಲ್ಲಿದೆ"
-    ],
-
-    "courses": [
-        "ಯಾವ ಕೋರ್ಸ್‌ಗಳಿವೆ",
-        "ಯಾವ ಕೋರ್ಸ್ ಗಳಿವೆ",
-        "ಕಾಲೇಜಿನಲ್ಲಿ ಯಾವ ಕೋರ್ಸ್",
-        "ಯಾವ ಬ್ರಾಂಚ್‌ಗಳಿವೆ",
-        "ಯಾವ ಬ್ರಾಂಚ್ ಗಳಿವೆ",
-        "ಏನು ಓದಬಹುದು",
-        "ಯಾವ ವಿಭಾಗಗಳಿವೆ"
-    ],
-
-    "timings": [
-        "ಕಾಲೇಜಿನ ಸಮಯ",
-        "ಕಾಲೇಜು ಸಮಯ",
-        "ಕಾಲೇಜಿನ ಸಮಯ ಏನು",
-        "ಕಾಲೇಜು ಯಾವಾಗ ತೆರೆಯುತ್ತದೆ",
-        "ಕಾಲೇಜು ಯಾವಾಗ ಮುಚ್ಚುತ್ತದೆ",
-        "ಸಮಯ ಎಷ್ಟು"
-    ],
-
-    "admission": [
-        "ಪ್ರವೇಶ ಹೇಗೆ",
-        "ಪ್ರವೇಶ ಪ್ರಕ್ರಿಯೆ",
-        "ಕಾಲೇಜಿಗೆ ಹೇಗೆ ಸೇರಬೇಕು",
-        "ಹೇಗೆ ಪ್ರವೇಶ ಪಡೆಯುವುದು",
-        "ಸೇರಲು ಹೇಗೆ",
-        "ಸಿಇಟಿ ಮೂಲಕ ಪ್ರವೇಶ",
-        "ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಪ್ರವೇಶ"
-    ],
-
-    "departments": [
-        "ಯಾವ ವಿಭಾಗಗಳಿವೆ",
-        "ವಿಭಾಗಗಳು ಯಾವುವು",
-        "ಕಾಲೇಜಿನ ವಿಭಾಗಗಳು",
-        "ಯಾವ ವಿಭಾಗ ಇದೆ",
-        "ವಿಭಾಗಗಳ ಬಗ್ಗೆ"
-    ],
-
-    "facilities": [
-        "ಸೌಲಭ್ಯಗಳು",
-        "ಯಾವ ಸೌಲಭ್ಯಗಳಿವೆ",
-        "ಕಾಲೇಜಿನ ಸೌಲಭ್ಯಗಳು",
-        "ಹಾಸ್ಟೆಲ್ ಇದೆಯಾ",
-        "ಲೈಬ್ರರಿ ಇದೆಯಾ",
-        "ಲ್ಯಾಬ್ ಇದೆಯಾ",
-        "ಕ್ರೀಡಾ ಸೌಲಭ್ಯ"
-    ],
-
-    "contact": [
-        "ಸಂಪರ್ಕ",
-        "ಸಂಪರ್ಕ ಸಂಖ್ಯೆ",
-        "ಫೋನ್ ನಂಬರ್",
-        "ಫೋನ್ ಸಂಖ್ಯೆ",
-        "ಇಮೇಲ್",
-        "ಕಾಲೇಜಿನ ನಂಬರ್"
+      "ನಾನು RYM Engineering College, Ballari ಬಗ್ಗೆ ಮಾಹಿತಿಯನ್ನು ನೀಡಬಹುದು.",
+      "ನೀವು ಕಾಲೇಜು, ಸ್ಥಳ, ಕೋರ್ಸ್‌ಗಳು, ಸಮಯ, ಪ್ರವೇಶ, ವಿಭಾಗಗಳು, ಸೌಲಭ್ಯಗಳು ಮತ್ತು ಸಂಪರ್ಕ ವಿವರಗಳ ಬಗ್ಗೆ ಕೇಳಬಹುದು.",
+      "RYMEC ಬಗ್ಗೆ ಮೂಲಭೂತ ಮಾಹಿತಿಯನ್ನು ತಿಳಿಸಲು ನಾನು ಸಹಾಯ ಮಾಡಬಹುದು.",
+      "ಉದಾಹರಣೆಗೆ 'ಕಾಲೇಜು ಎಲ್ಲಿದೆ?', 'ಯಾವ ಕೋರ್ಸ್‌ಗಳಿವೆ?' ಅಥವಾ 'ಕಾಲೇಜಿನ ಸಮಯ ಏನು?' ಎಂದು ಕೇಳಬಹುದು.",
+      "ನಾನು ಇಂಗ್ಲಿಷ್ ಮತ್ತು ಕನ್ನಡದಲ್ಲಿ RYMEC ಸಂಬಂಧಿತ ಪ್ರಶ್ನೆಗಳಿಗೆ ಉತ್ತರಿಸಬಹುದು.",
+      "ಪ್ರವೇಶ, ಕೋರ್ಸ್‌ಗಳು, ಸೌಲಭ್ಯಗಳು, ವಿಭಾಗಗಳು ಅಥವಾ ಸಂಪರ್ಕ ಮಾಹಿತಿಯನ್ನು ಕೇಳಿ.",
+      "ನಾನು ಹೇಗೆ ಸಹಾಯ ಮಾಡಲಿ? ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ."
     ],
 
     "college": [
-        "ಕಾಲೇಜಿನ ಬಗ್ಗೆ",
-        "ಕಾಲೇಜಿನ ಮಾಹಿತಿ",
-        "ಕಾಲೇಜು ಬಗ್ಗೆ",
-        "RYMEC ಬಗ್ಗೆ",
-        "ಕಾಲೇಜಿನ ಕುರಿತು"
-    ]
-}
-
-
-# --------------------------------------------------
-# ENGLISH KEYWORDS
-# --------------------------------------------------
-
-english_keywords = {
-
-    "greeting": [
-        "hello", "hi", "hey", "morning", "afternoon", "evening"
-    ],
-
-    "thanks": [
-        "thank", "thanks", "grateful", "appreciate"
-    ],
-
-    "goodbye": [
-        "bye", "goodbye", "later", "see you"
-    ],
-
-    "help": [
-        "help", "assist", "support", "what can you do"
+      "RYM Engineering College, Ballari ಕ್ಯಾಂಟೋನ್ಮೆಂಟ್‌ನಲ್ಲಿ ಇದೆ.",
+      "RYM Engineering College ನಲ್ಲಿ ವಿವಿಧ ಎಂಜಿನಿಯರಿಂಗ್ ಮತ್ತು ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಕೋರ್ಸ್‌ಗಳು ಹಾಗೂ ವಿವಿಧ ಸೌಲಭ್ಯಗಳಿವೆ.",
+      "RYMEC ಕರ್ನಾಟಕದ ಬಳ್ಳಾರಿಯ ಕ್ಯಾಂಟೋನ್ಮೆಂಟ್‌ನಲ್ಲಿ ಇರುವ ಎಂಜಿನಿಯರಿಂಗ್ ಕಾಲೇಜಾಗಿದೆ.",
+      "ಕಾಲೇಜಿನಲ್ಲಿ ಪ್ರಯೋಗಾಲಯಗಳು, ಗ್ರಂಥಾಲಯ, ಹಾಸ್ಟೆಲ್ ಮತ್ತು ಕ್ರೀಡಾ ಸೌಲಭ್ಯಗಳಿವೆ.",
+      "RYM Engineering College ವಿವಿಧ ಎಂಜಿನಿಯರಿಂಗ್ ಮತ್ತು ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಕಾರ್ಯಕ್ರಮಗಳನ್ನು ನೀಡುತ್ತದೆ.",
+      "RYMEC ಬಗ್ಗೆ ಸ್ಥಳ, ಕೋರ್ಸ್‌ಗಳು, ಪ್ರವೇಶ, ವಿಭಾಗಗಳು, ಸೌಲಭ್ಯಗಳು ಮತ್ತು ಸಂಪರ್ಕ ವಿವರಗಳನ್ನು ಕೇಳಬಹುದು."
     ],
 
     "college_location": [
-        "where", "location", "located", "address", "place", "find"
+      "RYM Engineering College ಕ್ಯಾಂಟೋನ್ಮೆಂಟ್, ಬಳ್ಳಾರಿ, ಕರ್ನಾಟಕ - 583104 ನಲ್ಲಿ ಇದೆ.",
+      "ಕಾಲೇಜು ಬಳ್ಳಾರಿಯ ಕ್ಯಾಂಟೋನ್ಮೆಂಟ್ ಪ್ರದೇಶದಲ್ಲಿದೆ.",
+      "RYMEC ಕರ್ನಾಟಕದ ಬಳ್ಳಾರಿಯಲ್ಲಿ ಇದೆ.",
+      "ಕಾಲೇಜಿನ ವಿಳಾಸ ಕ್ಯಾಂಟೋನ್ಮೆಂಟ್, ಬಳ್ಳಾರಿ - 583104.",
+      "RYM Engineering College ಬಳ್ಳಾರಿಯ ಕ್ಯಾಂಟೋನ್ಮೆಂಟ್ ಪ್ರದೇಶದಲ್ಲಿದೆ.",
+      "RYMEC ಬಳ್ಳಾರಿ, ಕರ್ನಾಟಕದಲ್ಲಿ ಇದೆ."
     ],
 
     "courses": [
-        "course", "courses", "branch", "branches",
-        "program", "programs", "study", "engineering"
+      "RYMEC ನಲ್ಲಿ Computer Science and Engineering, Information Science and Engineering, Electronics and Communication Engineering, Mechanical Engineering, Civil Engineering, CSE (AI & ML) ಮತ್ತು MBA ಕೋರ್ಸ್‌ಗಳಿವೆ.",
+      "ಕಾಲೇಜಿನಲ್ಲಿ ವಿವಿಧ ಎಂಜಿನಿಯರಿಂಗ್ ಮತ್ತು ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಕೋರ್ಸ್‌ಗಳಿವೆ.",
+      "RYMEC ನಲ್ಲಿ CSE, ISE, ECE, Mechanical, Civil, CSE (AI & ML) ಮತ್ತು MBA ಓದಬಹುದು.",
+      "RYM Engineering College ವಿವಿಧ ಎಂಜಿನಿಯರಿಂಗ್ ಕೋರ್ಸ್‌ಗಳ ಜೊತೆಗೆ MBA ಕಾರ್ಯಕ್ರಮವನ್ನೂ ನೀಡುತ್ತದೆ.",
+      "ಲಭ್ಯವಿರುವ ಕಾರ್ಯಕ್ರಮಗಳಲ್ಲಿ CSE, ISE, ECE, Mechanical, Civil, CSE (AI & ML) ಮತ್ತು MBA ಸೇರಿವೆ.",
+      "ಯಾವುದಾದರೂ ನಿರ್ದಿಷ್ಟ ಬ್ರಾಂಚ್ ಬಗ್ಗೆ ಮಾಹಿತಿ ಬೇಕಿದ್ದರೆ ಅದರ ಹೆಸರನ್ನು ಕೇಳಿ."
     ],
 
     "timings": [
-        "time", "timing", "timings", "hours",
-        "start", "end", "open", "close", "opening", "closing"
+      "ಕಾಲೇಜಿನ ಸಾಮಾನ್ಯ ಸಮಯ ಬೆಳಿಗ್ಗೆ 9:00 ರಿಂದ ಸಂಜೆ 5:00 ರವರೆಗೆ.",
+      "RYMEC ಕಾಲೇಜಿನ ಸಮಯ ಸಾಮಾನ್ಯವಾಗಿ ಬೆಳಿಗ್ಗೆ 9:00 ರಿಂದ ಸಂಜೆ 5:00 ರವರೆಗೆ ಇರುತ್ತದೆ.",
+      "ಕಾಲೇಜು ಬೆಳಿಗ್ಗೆ 9:00 ರಿಂದ ಸಂಜೆ 5:00 ರವರೆಗೆ ಕಾರ್ಯನಿರ್ವಹಿಸುತ್ತದೆ.",
+      "ಕಾಲೇಜಿನ ಸಮಯ 9:00 AM ರಿಂದ 5:00 PM.",
+      "ಸಾಮಾನ್ಯ ಕಾಲೇಜು ಸಮಯ ಬೆಳಿಗ್ಗೆ 9:00 ರಿಂದ ಸಂಜೆ 5:00 ರವರೆಗೆ.",
+      "RYMEC ಸಾಮಾನ್ಯವಾಗಿ 9:00 AM ರಿಂದ 5:00 PM ಸಮಯವನ್ನು ಅನುಸರಿಸುತ್ತದೆ."
     ],
 
     "admission": [
-        "admission", "admissions", "join", "apply",
-        "cet", "management", "enroll"
+      "RYMEC ನಲ್ಲಿ CET ಮತ್ತು ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಕೋಟಾ ಮೂಲಕ ಪ್ರವೇಶ ಪಡೆಯಬಹುದು.",
+      "ವಿದ್ಯಾರ್ಥಿಗಳು CET ಮೂಲಕ ಅಥವಾ ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಪ್ರವೇಶದ ಮೂಲಕ ಕಾಲೇಜಿಗೆ ಸೇರಬಹುದು.",
+      "RYMEC ನಲ್ಲಿ CET ಜೊತೆಗೆ ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಕೋಟಾ ಪ್ರವೇಶದ ಆಯ್ಕೆಯೂ ಇದೆ.",
+      "ಪ್ರವೇಶಕ್ಕಾಗಿ ಅನ್ವಯಿಸುವ CET ಪ್ರಕ್ರಿಯೆಯ ಮೂಲಕ ಅರ್ಜಿ ಸಲ್ಲಿಸಬಹುದು ಅಥವಾ ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಪ್ರವೇಶಕ್ಕಾಗಿ ಕಾಲೇಜನ್ನು ಸಂಪರ್ಕಿಸಬಹುದು.",
+      "ಕಾಲೇಜಿನಲ್ಲಿ CET ಆಧಾರಿತ ಮತ್ತು ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಪ್ರವೇಶದ ಆಯ್ಕೆಗಳಿವೆ.",
+      "ಪ್ರವೇಶದ ಇತ್ತೀಚಿನ ನಿಯಮಗಳು ಮತ್ತು ಪ್ರಕ್ರಿಯೆಗಾಗಿ ಕಾಲೇಜನ್ನು ಸಂಪರ್ಕಿಸಿ.",
+      "ವಿವರವಾದ ಪ್ರವೇಶ ಮಾಹಿತಿಗಾಗಿ ಅಧಿಕೃತ ಕಾಲೇಜು ಮಾಹಿತಿಯನ್ನು ಪರಿಶೀಲಿಸಿ ಅಥವಾ ಕಾಲೇಜನ್ನು ಸಂಪರ್ಕಿಸಿ."
     ],
 
     "departments": [
-        "department", "departments", "section",
-        "sections", "dept"
+      "ಕಾಲೇಜಿನಲ್ಲಿ CSE, ISE, ECE, Mechanical Engineering, Civil Engineering, CSE (AI & ML) ಮತ್ತು MBA ವಿಭಾಗಗಳಿವೆ.",
+      "RYMEC ನಲ್ಲಿ ವಿವಿಧ ಎಂಜಿನಿಯರಿಂಗ್ ಮತ್ತು ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ವಿಭಾಗಗಳಿವೆ.",
+      "ಮುಖ್ಯ ವಿಭಾಗಗಳಲ್ಲಿ Computer Science, Information Science, Electronics, Mechanical, Civil, AI & ML ಮತ್ತು Management ಸೇರಿವೆ.",
+      "ಯಾವುದಾದರೂ ನಿರ್ದಿಷ್ಟ ವಿಭಾಗದ ಬಗ್ಗೆ ಹೆಚ್ಚಿನ ಮಾಹಿತಿ ಬೇಕಿದ್ದರೆ ಕೇಳಿ.",
+      "RYM Engineering College ವಿವಿಧ ಎಂಜಿನಿಯರಿಂಗ್ ವಿಭಾಗಗಳ ಜೊತೆಗೆ ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ಅಧ್ಯಯನವನ್ನು ನೀಡುತ್ತದೆ.",
+      "ಕಾಲೇಜಿನಲ್ಲಿ ಕಂಪ್ಯೂಟರ್ ಸೈನ್ಸ್, ಮಾಹಿತಿ ವಿಜ್ಞಾನ, ಎಲೆಕ್ಟ್ರಾನಿಕ್ಸ್, ಮೆಕ್ಯಾನಿಕಲ್, ಸಿವಿಲ್, AI & ML ಮತ್ತು ಮ್ಯಾನೇಜ್ಮೆಂಟ್ ವಿಭಾಗಗಳಿವೆ."
     ],
 
     "facilities": [
-        "facility", "facilities", "hostel", "library",
-        "lab", "labs", "laboratory", "sports",
-        "computer", "infrastructure", "workshop", "internet"
+      "RYMEC ನಲ್ಲಿ ಗ್ರಂಥಾಲಯ, ಪ್ರಯೋಗಾಲಯಗಳು, ಹಾಸ್ಟೆಲ್, ಕ್ರೀಡಾ ಸೌಲಭ್ಯಗಳು, ವರ್ಕ್‌ಶಾಪ್ ಮತ್ತು ಇಂಟರ್ನೆಟ್ ಸೌಲಭ್ಯಗಳಿವೆ.",
+      "ಕಾಲೇಜಿನಲ್ಲಿ ಸೆಂಟ್ರಲ್ ಲೈಬ್ರರಿ, ಡಿಜಿಟಲ್ ಲೈಬ್ರರಿ, ಪ್ರಯೋಗಾಲಯಗಳು ಮತ್ತು ಕಂಪ್ಯೂಟರ್ ಸೌಲಭ್ಯಗಳಿವೆ.",
+      "ವಿದ್ಯಾರ್ಥಿಗಳಿಗೆ ಹಾಸ್ಟೆಲ್, ಕ್ರೀಡಾ ಸೌಲಭ್ಯಗಳು, ಪ್ರಯೋಗಾಲಯಗಳು ಮತ್ತು ಗ್ರಂಥಾಲಯ ಸೇವೆಗಳು ಲಭ್ಯವಿವೆ.",
+      "RYMEC ನಲ್ಲಿ ವರ್ಕ್‌ಶಾಪ್, ಕಂಪ್ಯೂಟರ್ ಸೌಲಭ್ಯಗಳು, ಆಡಿಟೋರಿಯಂ ಮತ್ತು ಸೆಮಿನಾರ್ ಹಾಲ್‌ಗಳಂತಹ ಸೌಲಭ್ಯಗಳಿವೆ.",
+      "ಕಾಲೇಜಿನಲ್ಲಿ ಹಾಸ್ಟೆಲ್ ಜೊತೆಗೆ ಗ್ರಂಥಾಲಯ, ಪ್ರಯೋಗಾಲಯ ಮತ್ತು ಕ್ರೀಡಾ ಸೌಲಭ್ಯಗಳಿವೆ.",
+      "RYMEC ನಲ್ಲಿ ವಿವಿಧ ಮೂಲಸೌಕರ್ಯ ಮತ್ತು ವಿದ್ಯಾರ್ಥಿ ಸಹಾಯ ಸೌಲಭ್ಯಗಳಿವೆ."
     ],
 
     "contact": [
-        "contact", "phone", "number", "telephone",
-        "email", "call"
+      "RYMEC ನ ಅಧಿಕೃತ ಸಂಪರ್ಕ ಸಂಖ್ಯೆ 08392-244809.",
+      "RYM Engineering College ಅನ್ನು 08392-244809 ಸಂಖ್ಯೆಯಲ್ಲಿ ಸಂಪರ್ಕಿಸಬಹುದು.",
+      "ಕಾಲೇಜಿನ ಅಧಿಕೃತ ಸಂಪರ್ಕ ಮಾಹಿತಿಯನ್ನು RYMEC ವೆಬ್‌ಸೈಟ್‌ನಲ್ಲಿ ಪಡೆಯಬಹುದು.",
+      "ಪ್ರವೇಶ ಅಥವಾ ಇತರ ಅಧಿಕೃತ ವಿಚಾರಣೆಗಳಿಗಾಗಿ ಕಾಲೇಜನ್ನು ನೇರವಾಗಿ ಸಂಪರ್ಕಿಸಬಹುದು.",
+      "RYMEC ವಿಳಾಸ ಕ್ಯಾಂಟೋನ್ಮೆಂಟ್, ಬಳ್ಳಾರಿ - 583104. ಅಧಿಕೃತ ಸಂಪರ್ಕ ಸಂಖ್ಯೆ 08392-244809.",
+      "ಇತ್ತೀಚಿನ ಸಂಪರ್ಕ ವಿವರಗಳಿಗಾಗಿ ಅಧಿಕೃತ RYMEC ವೆಬ್‌ಸೈಟ್ ಪರಿಶೀಲಿಸಿ."
     ],
 
-    "college": [
-        "college", "rymec"
+    "default": [
+      "ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ನನಗೆ ಸರಿಯಾಗಿ ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಬೇರೆ ರೀತಿಯಲ್ಲಿ ಕೇಳಿ.",
+      "ನೀವು ಕೇಳಿದ ವಿಷಯವನ್ನು ಗುರುತಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. RYMEC, ಕೋರ್ಸ್‌ಗಳು, ಪ್ರವೇಶ, ಸೌಲಭ್ಯಗಳು ಅಥವಾ ಸಂಪರ್ಕ ವಿವರಗಳ ಬಗ್ಗೆ ಕೇಳಿ.",
+      "ದಯವಿಟ್ಟು ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಮತ್ತೊಮ್ಮೆ ಸರಳವಾಗಿ ಕೇಳಿ. RYM Engineering College ಬಗ್ಗೆ ನಾನು ಸಹಾಯ ಮಾಡಬಹುದು.",
+      "ನಾನು ವಿವಿಧ ರೀತಿಯ ಪ್ರಶ್ನೆಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಳ್ಳಲು ಪ್ರಯತ್ನಿಸುತ್ತಿದ್ದೇನೆ. ದಯವಿಟ್ಟು ಪ್ರಶ್ನೆಯನ್ನು ಸ್ವಲ್ಪ ಸರಳವಾಗಿ ಕೇಳಿ.",
+      "ಕಾಲೇಜಿನ ಸ್ಥಳ, ಕೋರ್ಸ್‌ಗಳು, ಸಮಯ, ಪ್ರವೇಶ, ವಿಭಾಗಗಳು, ಸೌಲಭ್ಯಗಳು ಅಥವಾ ಸಂಪರ್ಕ ವಿವರಗಳ ಬಗ್ಗೆ ಕೇಳಬಹುದು.",
+      "ಕ್ಷಮಿಸಿ, ಸೂಕ್ತವಾದ ಉತ್ತರವನ್ನು ಕಂಡುಹಿಡಿಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಪ್ರಶ್ನೆಯನ್ನು ಬೇರೆ ರೀತಿಯಲ್ಲಿ ಕೇಳಿ.",
+      "RYMEC ಬಗ್ಗೆ ಮಾಹಿತಿಯನ್ನು ನೀಡಲು ನಾನು ಸಹಾಯ ಮಾಡಬಹುದು. ನಿಮಗೆ ಏನು ತಿಳಿದುಕೊಳ್ಳಬೇಕು?",
+      "ದಯವಿಟ್ಟು RYM Engineering College ಬಗ್ಗೆ ನಿಮ್ಮ ಪ್ರಶ್ನೆಯನ್ನು ಕೇಳಿ."
     ]
+  }
 }
-
-
-# --------------------------------------------------
-# FUZZY / TYPO KEYWORDS
-# --------------------------------------------------
-
-fuzzy_keywords = {
-
-    "greeting": [
-        "hello", "hi", "hey", "hii", "hiii",
-        "helo", "helloo", "heyy", "hiiii"
-    ],
-
-    "thanks": [
-        "thanks", "thank", "thankyou",
-        "thnks", "thx", "thanksss"
-    ],
-
-    "goodbye": [
-        "bye", "byee", "goodbye",
-        "goodby", "seeyou"
-    ],
-
-    "help": [
-        "help", "helpp", "hepl", "halp", "assist"
-    ],
-
-    "college_location": [
-        "location", "located", "address",
-        "adress", "loction", "where"
-    ],
-
-    "courses": [
-        "course", "courses", "coursee",
-        "cours", "cousres", "corses",
-        "branch", "branches", "program", "study"
-    ],
-
-    "timings": [
-        "time", "timing", "timings", "tim",
-        "hours", "opening", "closing"
-    ],
-
-    "admission": [
-        "admission", "admisn", "admisssion",
-        "admisson", "admissionn", "admit",
-        "apply", "join"
-    ],
-
-    "departments": [
-        "department", "departments",
-        "deparment", "departmnt", "dept"
-    ],
-
-    "facilities": [
-        "facility", "facilities", "facilty",
-        "facilites", "hostel", "library",
-        "libary", "librery", "lab", "labs",
-        "sports", "computer"
-    ],
-
-    "contact": [
-        "contact", "contct", "conatct",
-        "phone", "phne", "number",
-        "email", "emal"
-    ],
-
-    "college": [
-        "college", "collage", "colleg", "rymec"
-    ]
-}
-
-
-# --------------------------------------------------
-# QUESTION NORMALIZATION
-# --------------------------------------------------
-
-def normalize_question(message):
-    """
-    Removes unnecessary conversational words so that
-    natural questions are easier to recognize.
-    """
-
-    message = message.lower().strip()
-
-    # Remove punctuation
-    message = re.sub(r"[?!.,;:]+", " ", message)
-
-    # Common unnecessary phrases
-    filler_phrases = [
-        r"\bcan you please\b",
-        r"\bcould you please\b",
-        r"\bcan you\b",
-        r"\bcould you\b",
-        r"\bwould you\b",
-        r"\bplease\b",
-        r"\btell me\b",
-        r"\bgive me\b",
-        r"\bi want to know\b",
-        r"\bi would like to know\b",
-        r"\bi need to know\b",
-        r"\bdo you know\b",
-        r"\bwhat is\b",
-        r"\bwhat are\b",
-        r"\bwhat about\b",
-        r"\bi want information about\b",
-        r"\bi need information about\b"
-    ]
-
-    for phrase in filler_phrases:
-        message = re.sub(phrase, " ", message)
-
-    # Remove extra spaces
-    message = re.sub(r"\s+", " ", message).strip()
-
-    return message
-
-
-# --------------------------------------------------
-# LANGUAGE DETECTION
-# --------------------------------------------------
-
-def is_kannada(message):
-    return bool(re.search(r"[\u0C80-\u0CFF]", message))
-
-
-# --------------------------------------------------
-# KANNADA INTENT RECOGNITION
-# --------------------------------------------------
-
-def recognize_kannada_intent(message):
-
-    message = message.lower().strip()
-
-    for intent, phrases in kannada_patterns.items():
-
-        for phrase in phrases:
-
-            if phrase.lower() in message:
-                return intent
-
-    return "default"
-
-
-# --------------------------------------------------
-# ENGLISH EXACT PATTERN RECOGNITION
-# --------------------------------------------------
-
-def recognize_intent(message):
-
-    message = normalize_question(message)
-
-    for intent, intent_patterns in patterns.items():
-
-        for pattern in intent_patterns:
-
-            if re.search(pattern, message, re.IGNORECASE):
-                return intent
-
-    return "default"
-
-
-# --------------------------------------------------
-# ENGLISH KEYWORD SCORING
-# --------------------------------------------------
-
-def recognize_intent_by_keywords(message):
-
-    message = normalize_question(message)
-
-    scores = {}
-
-    for intent, keywords in english_keywords.items():
-
-        score = 0
-
-        for keyword in keywords:
-
-            if " " in keyword:
-
-                if keyword in message:
-                    score += 3
-
-            else:
-
-                if re.search(
-                    rf"\b{re.escape(keyword)}\b",
-                    message
-                ):
-                    score += 1
-
-        scores[intent] = score
-
-    best_intent = max(scores, key=scores.get)
-
-    if scores[best_intent] > 0:
-        return best_intent
-
-    return "default"
-
-
-# --------------------------------------------------
-# TYPO / FUZZY MATCHING
-# --------------------------------------------------
-
-def similarity(word1, word2):
-
-    return SequenceMatcher(
-        None,
-        word1.lower(),
-        word2.lower()
-    ).ratio()
-
-
-def recognize_typo_intent(message):
-
-    message = normalize_question(message)
-
-    words = re.findall(r"[a-zA-Z]+", message)
-
-    best_intent = "default"
-    best_score = 0
-
-    for word in words:
-
-        for intent, keywords in fuzzy_keywords.items():
-
-            for keyword in keywords:
-
-                score = similarity(word, keyword)
-
-                if score > best_score:
-
-                    best_score = score
-                    best_intent = intent
-
-    if best_score >= 0.72:
-        return best_intent
-
-    return "default"
-
-
-# --------------------------------------------------
-# SMART ENGLISH INTENT
-# --------------------------------------------------
-
-def smart_english_intent(message):
-
-    normalized = normalize_question(message)
-
-    # 1. Exact pattern matching
-    intent = recognize_intent(normalized)
-
-    if intent != "default":
-        return intent
-
-    # 2. Keyword matching
-    intent = recognize_intent_by_keywords(normalized)
-
-    if intent != "default":
-        return intent
-
-    # 3. Typo / fuzzy matching
-    intent = recognize_typo_intent(normalized)
-
-    return intent
-
-
-# --------------------------------------------------
-# TRANSLATE TO ENGLISH
-# --------------------------------------------------
-
-def translate_to_english(message):
-
-    try:
-
-        translated = GoogleTranslator(
-            source="auto",
-            target="en"
-        ).translate(message)
-
-        return translated
-
-    except Exception:
-
-        return message
-
-
-# --------------------------------------------------
-# GENERATE RESPONSE
-# --------------------------------------------------
-
-def generate_response(language, intent):
-
-    if language not in responses:
-        language = "en"
-
-    if intent not in responses[language]:
-        intent = "default"
-
-    response_list = responses[language][intent]
-
-    previous_response = session.get(
-        "previous_response"
-    )
-
-    available_responses = [
-        response
-        for response in response_list
-        if response != previous_response
-    ]
-
-    if not available_responses:
-        available_responses = response_list
-
-    selected_response = random.choice(
-        available_responses
-    )
-
-    session["previous_response"] = selected_response
-
-    return selected_response
-
-
-# --------------------------------------------------
-# FOLLOW-UP QUESTIONS
-# --------------------------------------------------
-
-english_followups = [
-    "tell me more",
-    "more information",
-    "give me more",
-    "more details",
-    "what about it",
-    "and what about it",
-    "tell me more about it",
-    "can you explain more",
-    "please tell me more",
-    "explain more"
-]
-
-
-kannada_followups = [
-    "ಇನ್ನಷ್ಟು ಹೇಳಿ",
-    "ಇನ್ನಷ್ಟು ಮಾಹಿತಿ",
-    "ಹೆಚ್ಚಿನ ಮಾಹಿತಿ",
-    "ಇನ್ನಷ್ಟು ವಿವರ",
-    "ಇದರ ಬಗ್ಗೆ ಇನ್ನಷ್ಟು ಹೇಳಿ",
-    "ಇನ್ನಷ್ಟು ತಿಳಿಸಿ",
-    "ಮತ್ತಷ್ಟು ಮಾಹಿತಿ ನೀಡಿ"
-]
-
-
-# --------------------------------------------------
-# CHAT ROUTE
-# --------------------------------------------------
-
-@app.route("/chat", methods=["POST"])
-def chat():
-
-    data = request.get_json()
-
-    message = data.get("message", "").strip()
-
-    if not message:
-
-        return jsonify({
-            "response": "Please enter a message.",
-            "intent": "default",
-            "language": "en"
-        })
-
-
-    # ----------------------------------------------
-    # DETECT LANGUAGE
-    # ----------------------------------------------
-
-    language = "kn" if is_kannada(message) else "en"
-
-
-    # ----------------------------------------------
-    # FOLLOW-UP CHECK
-    # ----------------------------------------------
-
-    normalized_message = message.lower().strip()
-
-    is_followup = (
-        normalized_message in english_followups
-        or message.strip() in kannada_followups
-    )
-
-
-    # ----------------------------------------------
-    # INTENT RECOGNITION
-    # ----------------------------------------------
-
-    if is_followup:
-
-        intent = session.get(
-            "previous_intent",
-            "default"
-        )
-
-    elif language == "kn":
-
-        intent = recognize_kannada_intent(message)
-
-        # If Kannada pattern is not found,
-        # translate and use English intelligence.
-        if intent == "default":
-
-            translated_message = translate_to_english(
-                message
-            )
-
-            intent = smart_english_intent(
-                translated_message
-            )
-
-    else:
-
-        intent = smart_english_intent(message)
-
-
-    # ----------------------------------------------
-    # SAVE CONTEXT
-    # ----------------------------------------------
-
-    if intent != "default":
-
-        session["previous_intent"] = intent
-
-
-    # ----------------------------------------------
-    # GENERATE RESPONSE
-    # ----------------------------------------------
-
-    response = generate_response(
-        language,
-        intent
-    )
-
-
-    return jsonify({
-        "response": response,
-        "intent": intent,
-        "language": language
-    })
-
-
-# --------------------------------------------------
-# HOME PAGE
-# --------------------------------------------------
-
-@app.route("/")
-def home():
-
-    return render_template("index.html")
-
-
-# --------------------------------------------------
-# RUN APPLICATION
-# --------------------------------------------------
-
-if __name__ == "__main__":
-    app.run(debug=True)
