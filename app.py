@@ -797,6 +797,116 @@ def translate_to_english(message):
 # GENERATE RESPONSE
 # =========================================================
 
+def generate_college_response(language, intent):
+    if language == "kn":
+        if intent == "college_location":
+            return (
+                f"ಕಾಲೇಜಿನ ಸ್ಥಳ: {college_data['location']}."
+            )
+
+        if intent == "courses":
+            courses = ", ".join(college_data["courses"])
+            return (
+                f"ಲಭ್ಯವಿರುವ ಕೋರ್ಸ್‌ಗಳು: {courses}."
+            )
+
+        if intent == "timings":
+            return (
+                f"ಕಾಲೇಜಿನ ಸಮಯ: {college_data['timings']}."
+            )
+
+        if intent == "admission":
+            return (
+                f"ಪ್ರವೇಶ ವಿಧಾನ: {college_data['admissionMode']}. "
+                f"{college_data['admissionDetails']}"
+            )
+
+        if intent == "departments":
+            courses = ", ".join(college_data["courses"])
+            return (
+                f"ಕಾಲೇಜಿನಲ್ಲಿ ಲಭ್ಯವಿರುವ ವಿಭಾಗಗಳು: {courses}."
+            )
+
+        if intent == "facilities":
+            facilities = ", ".join(
+                college_data["facilities"]
+            )
+            return (
+                f"ಕಾಲೇಜಿನ ಸೌಲಭ್ಯಗಳು: {facilities}."
+            )
+
+        if intent == "contact":
+            return (
+                f"ಕಾಲೇಜಿನ ಸಂಪರ್ಕ ಸಂಖ್ಯೆ: "
+                f"{college_data['phone']}. "
+                f"ಇಮೇಲ್: {college_data['email']}."
+            )
+
+        if intent == "college":
+            return (
+                f"{college_data['collegeName']} "
+                f"{college_data['location']} ನಲ್ಲಿ ಇದೆ. "
+                f"ಕಾಲೇಜಿನ ಸಮಯ: {college_data['timings']}."
+            )
+
+    else:
+        if intent == "college_location":
+            return (
+                f"The college is located at "
+                f"{college_data['location']}."
+            )
+
+        if intent == "courses":
+            courses = ", ".join(college_data["courses"])
+            return (
+                f"The available courses are: {courses}."
+            )
+
+        if intent == "timings":
+            return (
+                f"College timings are "
+                f"{college_data['timings']}."
+            )
+
+        if intent == "admission":
+            return (
+                f"Admission mode: "
+                f"{college_data['admissionMode']}. "
+                f"{college_data['admissionDetails']}"
+            )
+
+        if intent == "departments":
+            courses = ", ".join(college_data["courses"])
+            return (
+                f"The available departments are: {courses}."
+            )
+
+        if intent == "facilities":
+            facilities = ", ".join(
+                college_data["facilities"]
+            )
+            return (
+                f"The college facilities include: "
+                f"{facilities}."
+            )
+
+        if intent == "contact":
+            return (
+                f"College contact number: "
+                f"{college_data['phone']}. "
+                f"Email: {college_data['email']}."
+            )
+
+        if intent == "college":
+            return (
+                f"{college_data['collegeName']} is located "
+                f"at {college_data['location']}. "
+                f"College timings are "
+                f"{college_data['timings']}."
+            )
+
+    return None
+
 def generate_response(language, intent):
 
     # Make sure language exists
@@ -846,7 +956,46 @@ def home():
 
 @app.route("/admin")
 def admin():
+    if not session.get("admin_logged_in"):
+        return render_template("admin_login.html")
+
     return render_template("admin.html")
+
+@app.route("/admin/login", methods=["POST"])
+def admin_login():
+
+    data = request.get_json()
+
+    if not data:
+        return jsonify({
+            "success": False,
+            "message": "Invalid request."
+        }), 400
+
+    username = data.get("username", "").strip()
+    password = data.get("password", "")
+
+    if username == "admin" and password == "admin123":
+
+        session["admin_logged_in"] = True
+
+        return jsonify({
+            "success": True,
+            "message": "Login successful."
+        })
+
+    return jsonify({
+        "success": False,
+        "message": "Invalid username or password."
+    }), 401
+
+
+@app.route("/admin/logout")
+def admin_logout():
+
+    session.pop("admin_logged_in", None)
+
+    return render_template("admin_login.html")
 
 @app.route("/admin/data", methods=["GET"])
 def get_college_data():
@@ -1087,7 +1236,14 @@ def chat():
     # GENERATE RESPONSE
     # =====================================================
 
-    response = generate_response(
+    dynamic_response = generate_college_response(
+    language,
+    intent )
+
+    if dynamic_response:
+        response = dynamic_response
+    else:
+        response = generate_response(
         language,
         intent
     )
